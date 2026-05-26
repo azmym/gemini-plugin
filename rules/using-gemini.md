@@ -1,0 +1,37 @@
+## Gemini Plugin: Session Rules
+
+The gemini-plugin is loaded. Four subagents assist you:
+
+| Agent | Role | Spawn via |
+|---|---|---|
+| gemini-validator | Validates plans, diffs, done-claims for gaps and hallucinations | Hook (ExitPlanMode, Stop) or /gemini-plugin:gemini-validate |
+| gemini-challenger | Devil's advocate; proposes alternatives, challenges destructive ops | Hook (PreToolUse Bash) or /gemini-plugin:gemini-challenge |
+| gemini-researcher | Search-grounded facts with citations; never opines without a URL | Hook (UserPromptSubmit) or /gemini-plugin:gemini-research |
+| gemini-summarizer | Compresses session state; writes risk maps at SessionStart | Hook (SessionStart, PreCompact) |
+
+### Always reach for Gemini when
+
+- User says "second opinion", "check this", "what would Gemini say"
+- A claim depends on post-training-cutoff info (library versions, CVEs, pricing, API shapes)
+- You're about to run a destructive command the hook might miss (multi-line scripts, compound pipelines)
+- You're completing a plan or claiming "done" and the hook hasn't already fired
+
+### Never reach for Gemini when
+
+- The question is answered by a file already in context
+- The task is a trivial typo, formatting, or one-line config change
+- You already received a Gemini verdict on the same artifact this session
+- The user says "no Gemini", "skip validation", or "just do it"
+
+### Cost discipline
+
+- Validator and researcher use haiku. Challenger and summarizer use sonnet.
+- Deep research is opt-in only (via /gemini-plugin:gemini-research --deep)
+- One validation per artifact per session. No re-asking.
+- If GEMINI_API_KEY is unset, everything gracefully no-ops.
+
+### Disable individual components
+
+- Env: `CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1` silences all hooks
+- Settings: add `Agent(gemini-plugin:gemini-challenger)` to `permissions.deny` to block specific agents
+- Command: `/gemini-plugin:gemini-brainstorm-off` to disable unconditional grounding
