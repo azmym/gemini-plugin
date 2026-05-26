@@ -2,3 +2,6 @@
 plugin-data/
 *.lock
 !brainstorm.lock
+
+# Internal design docs (not shipped with plugin)
+docs/superpowers/
