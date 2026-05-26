@@ -28,7 +28,7 @@ The gemini-plugin is loaded. Four subagents assist you:
 - Validator and researcher use haiku. Challenger and summarizer use sonnet.
 - Deep research is opt-in only (via /gemini-plugin:gemini-research --deep)
 - One validation per artifact per session. No re-asking.
-- If GEMINI_API_KEY is unset, everything gracefully no-ops.
+- API key is configured at install time (stored in keychain). If unavailable, everything gracefully no-ops.
 
 ### Disable individual components
 

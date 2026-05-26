@@ -10,14 +10,13 @@ Built on [gemini-mcp](https://github.com/azmym/gemini-mcp) (13 MCP tools coverin
 # Add the marketplace
 /plugin marketplace add azmym/gemini-plugin
 
-# Install the plugin
+# Install the plugin (you'll be prompted for your API key)
 /plugin install gemini-plugin@gemini-marketplace
-
-# Set your API key (get one at https://aistudio.google.com/app/apikey)
-export GEMINI_API_KEY=<your-key>
 ```
 
-The plugin auto-registers the `gemini` MCP server. No separate `claude mcp add` step needed.
+During installation, Claude Code prompts you for your Google AI Studio API key. The key is stored securely in your system keychain (not in plain text). Get a key at [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey).
+
+The plugin auto-registers the `gemini` MCP server. No separate `claude mcp add` or `export` step needed.
 
 ## What you get
 
@@ -74,7 +73,7 @@ Invoke manually: `@agent-gemini-plugin:gemini-validator`, or via slash commands.
 ## Requirements
 
 - Claude Code with plugin support
-- A Google AI Studio API key (`GEMINI_API_KEY`)
+- A Google AI Studio API key (prompted during install, stored in system keychain)
 - `uvx` (installed with `uv`; the MCP server is fetched automatically)
 - `jq` (used by hook scripts to parse JSON)
 

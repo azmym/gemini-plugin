@@ -8,12 +8,21 @@
   "repository": "https://github.com/azmym/gemini-plugin",
   "license": "MIT",
   "keywords": ["gemini", "mcp", "subagent", "hooks", "anti-hallucination", "google-ai"],
+  "userConfig": {
+    "gemini_api_key": {
+      "type": "string",
+      "title": "Gemini API Key",
+      "description": "Google AI Studio API key (get one at aistudio.google.com/app/apikey)",
+      "sensitive": true,
+      "required": true
+    }
+  },
   "mcpServers": {
     "gemini": {
       "type": "stdio",
       "command": "uvx",
       "args": ["--from", "git+https://github.com/azmym/gemini-mcp@v0.2.0", "gemini-mcp"],
-      "env": { "GEMINI_API_KEY": "${GEMINI_API_KEY}" }
+      "env": { "GEMINI_API_KEY": "${user_config.gemini_api_key}" }
     }
   }
 }

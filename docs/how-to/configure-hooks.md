@@ -48,13 +48,13 @@ Available agent names:
 
 ## Graceful degradation without API key
 
-If `GEMINI_API_KEY` is not set in the environment, every hook exits 0 with a single-line stderr advisory:
+The API key is normally configured during plugin installation via the `userConfig` prompt (stored in system keychain). If for any reason the key is unavailable at runtime, every hook exits 0 with a single-line stderr advisory:
 
 ```
 [gemini-plugin] GEMINI_API_KEY not set; skipping Gemini consultation.
 ```
 
-No hook ever blocks when the API key is absent.
+No hook ever blocks when the API key is absent. To re-enter your key, use the plugin settings UI or reinstall the plugin.
 
 ## Destructive command patterns
 

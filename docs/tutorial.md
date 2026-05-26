@@ -18,15 +18,17 @@ Open Claude Code and run:
 /plugin install gemini-plugin@gemini-marketplace
 ```
 
-## Step 2: Set your API key
+## Step 2: Enter your API key
 
-Add to your shell profile (`.zshrc`, `.bashrc`, etc.):
+During installation, Claude Code prompts you for your Google AI Studio API key:
 
-```bash
-export GEMINI_API_KEY=<your-key>
+```
+Gemini API Key: ________
 ```
 
-Restart Claude Code or source your profile.
+The input is masked and the key is stored securely in your system keychain (not in settings files or plain text). You only enter this once; it persists across sessions.
+
+If you don't have a key yet, get one free at [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey).
 
 ## Step 3: Verify the installation
 

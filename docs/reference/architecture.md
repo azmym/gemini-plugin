@@ -129,6 +129,26 @@ sequenceDiagram
 | Shared library | 2 | `hooks/lib/*.sh` | JSON helpers, gates, prompt builders |
 | Rules | 1 | `rules/using-gemini.md` | Session-level usage guidance |
 
+## API key configuration
+
+The plugin uses `userConfig` to prompt for the API key at install time:
+
+```json
+{
+  "userConfig": {
+    "gemini_api_key": {
+      "type": "string",
+      "title": "Gemini API Key",
+      "description": "Google AI Studio API key",
+      "sensitive": true,
+      "required": true
+    }
+  }
+}
+```
+
+The key is stored in the system keychain (`sensitive: true`) and injected at runtime via `${user_config.gemini_api_key}`. Users never need to export environment variables manually.
+
 ## MCP server registration
 
 The plugin manifest auto-registers the gemini MCP server on install:
@@ -140,7 +160,7 @@ The plugin manifest auto-registers the gemini MCP server on install:
       "type": "stdio",
       "command": "uvx",
       "args": ["--from", "git+https://github.com/azmym/gemini-mcp@v0.2.0", "gemini-mcp"],
-      "env": { "GEMINI_API_KEY": "${GEMINI_API_KEY}" }
+      "env": { "GEMINI_API_KEY": "${user_config.gemini_api_key}" }
     }
   }
 }
