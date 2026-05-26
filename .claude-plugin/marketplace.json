@@ -1,0 +1,15 @@
+{
+  "name": "gemini-marketplace",
+  "owner": { "name": "azmym" },
+  "description": "Gemini-as-second-opinion plugin for Claude Code",
+  "plugins": [
+    {
+      "name": "gemini-plugin",
+      "source": "./",
+      "description": "Wraps gemini-mcp into a Claude Code plugin: validator/challenger/researcher/summarizer subagents, auto-trigger hooks, 8 skills covering text/image/video/music/TTS/research.",
+      "category": "ai-assistance",
+      "tags": ["gemini", "google-ai", "validation", "anti-hallucination", "second-opinion"],
+      "keywords": ["gemini", "mcp", "subagent", "hooks", "validator"]
+    }
+  ]
+}

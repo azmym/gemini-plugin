@@ -1,0 +1,4 @@
+# Plugin data (runtime state, not source)
+plugin-data/
+*.lock
+!brainstorm.lock
