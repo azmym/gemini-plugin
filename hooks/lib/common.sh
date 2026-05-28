@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 # Shared helpers for all hook scripts.
 
-# Check if GEMINI_API_KEY is available. If not, print advisory and exit 0.
+# Check if a Gemini API key is available in the hook's environment.
+# Claude Code exposes userConfig values as CLAUDE_PLUGIN_OPTION_<KEY>; the
+# legacy GEMINI_API_KEY env var is accepted as a fallback for users who
+# export it manually. If neither is set, print an advisory and exit 0
+# (never block work just because the key is absent).
 check_gemini_available() {
-  if [ -z "${GEMINI_API_KEY:-}" ]; then
-    echo "[gemini-plugin] GEMINI_API_KEY not set; skipping Gemini consultation." >&2
+  if [ -z "${CLAUDE_PLUGIN_OPTION_GEMINI_API_KEY:-${GEMINI_API_KEY:-}}" ]; then
+    echo "[gemini-plugin] Gemini API key not configured; skipping consultation." >&2
     exit 0
   fi
 }
@@ -16,9 +20,9 @@ check_plugin_enabled() {
   fi
 }
 
-# Ensure CLAUDE_PLUGIN_DATA_DIR exists.
+# Ensure CLAUDE_PLUGIN_DATA exists.
 ensure_data_dir() {
-  mkdir -p "${CLAUDE_PLUGIN_DATA_DIR:-/tmp/gemini-plugin-data}"
+  mkdir -p "${CLAUDE_PLUGIN_DATA:-/tmp/gemini-plugin-data}"
 }
 
 # Compute a short hash of the git repo root for cache keying.
@@ -31,7 +35,7 @@ repo_hash() {
 # Detect if brainstorming session is active.
 # Returns 0 (true) if brainstorming detected, 1 otherwise.
 is_brainstorming() {
-  local data_dir="${CLAUDE_PLUGIN_DATA_DIR:-/tmp/gemini-plugin-data}"
+  local data_dir="${CLAUDE_PLUGIN_DATA:-/tmp/gemini-plugin-data}"
   # Signal 4: explicit lock file
   if [ -f "${data_dir}/brainstorm.lock" ]; then
     return 0
@@ -44,7 +48,7 @@ is_brainstorming() {
 get_plan_history() {
   local task_type="$1"
   local count="${2:-3}"
-  local data_dir="${CLAUDE_PLUGIN_DATA_DIR:-/tmp/gemini-plugin-data}"
+  local data_dir="${CLAUDE_PLUGIN_DATA:-/tmp/gemini-plugin-data}"
   local history_file="${data_dir}/plan-history.jsonl"
 
   if [ ! -f "$history_file" ]; then
@@ -57,7 +61,8 @@ get_plan_history() {
 
 # Matches a command string against destructive patterns.
 # Returns 0 if destructive, 1 if safe.
+# Patterns are intentionally narrow to keep false-positive rate low.
 is_destructive_command() {
   local cmd="$1"
-  echo "$cmd" | grep -qE '\brm\s+(-[a-zA-Z]*f|-[a-zA-Z]*r|--force)[a-zA-Z ]*|--force|reset\s+--hard|\bDROP\b|\bTRUNCATE\b|git\s+push\s+.*--force|\bdd\s+if='
+  echo "$cmd" | grep -qE '\brm\s+-[a-zA-Z]*[rRf]|\bgit\s+reset\s+--hard\b|\bgit\s+push\s+[^|;]*--force\b|\bDROP\s+(TABLE|DATABASE|SCHEMA)\b|\bTRUNCATE\s+TABLE\b|\bdd\s+if=|>\s*/dev/sd[a-z]'
 }

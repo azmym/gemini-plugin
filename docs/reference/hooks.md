@@ -8,8 +8,8 @@ The plugin ships 7 hooks defined in `hooks/hooks.json`. Six are triggers (read e
 graph LR
     SS[SessionStart] --> SSR[session-start-risk-map.sh]
     UP[UserPromptSubmit] --> UPG[user-prompt-grounding.sh]
-    EP[ExitPlanMode] --> PC[plan-complete.sh]
-    PT[PreToolUse Bash] --> PDB[pre-destructive-bash.sh]
+    PTB[PreToolUse Bash] --> PDB[pre-destructive-bash.sh]
+    PTE[PreToolUse ExitPlanMode] --> PC[plan-complete.sh]
     PCO[PreCompact] --> PCS[pre-compact-summary.sh]
     ST[Stop] --> SDC[stop-done-claim.sh]
     SAS[SubagentStop] --> SVH[subagent-verdict-handler.sh]
@@ -21,6 +21,8 @@ graph LR
     PCS --> |exit 2| SUM
     SDC --> |exit 2| VAL
 ```
+
+> **Note:** `ExitPlanMode` is a tool name, not a hook event. The plan-validation hook fires under the `PreToolUse` event with `matcher: ExitPlanMode`.
 
 ## Hook details
 
@@ -54,15 +56,15 @@ graph LR
 
 | Field | Value |
 |---|---|
-| Event | `ExitPlanMode` |
-| Matcher | (none) |
+| Event | `PreToolUse` |
+| Matcher | `ExitPlanMode` |
 | Gate | Always fires if plan text is non-empty |
 | Subagent | `gemini-validator` (task=VALIDATE_PLAN) |
 | Blocking | Yes (exit 2) |
 
 **What it does:** Validates the completed plan for gaps, hallucinations, and missed acceptance criteria. Includes last 3 rejected plans from history to avoid re-raising addressed issues.
 
-**Stdin JSON:** `{"plan": "plan markdown text"}`
+**Stdin JSON:** `{"tool_input": {"plan": "plan markdown text"}}` (legacy `.plan` accepted for backwards compatibility).
 
 ### pre-destructive-bash.sh
 
@@ -74,14 +76,18 @@ graph LR
 | Subagent | `gemini-challenger` (task=CHALLENGE_DESTRUCTIVE_OP) |
 | Blocking | Yes (exit 2) |
 
-**Destructive patterns matched:**
-- `rm` with `-f`, `-r`, or `--force` flags
-- Any command with `--force`
-- `reset --hard`
-- `DROP` (SQL keyword)
-- `TRUNCATE` (SQL keyword)
-- `git push` with `--force`
+**Destructive patterns matched (narrow on purpose to keep false-positive rate low):**
+- `rm -[rRf]` flag combinations
+- `git reset --hard`
+- `git push ... --force` (any token order before `--force`)
+- `DROP TABLE`, `DROP DATABASE`, `DROP SCHEMA`
+- `TRUNCATE TABLE`
 - `dd if=`
+- Redirection to a raw block device (`> /dev/sd*`)
+
+Patterns that look destructive but pass through (intentional false-positive guards):
+- `git pull --force`, `npm install --force` (not destructive)
+- Commit messages or text containing the word "drop" out of context
 
 **Stdin JSON:** `{"tool_input": {"command": "the bash command"}}`
 

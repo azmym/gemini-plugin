@@ -66,5 +66,5 @@ Add `Agent(gemini-plugin:gemini-validator)` to `permissions.deny` in your settin
 ## Tips
 
 - The validator uses Haiku for speed and cost. For complex validations, it calls `gemini_search_grounded` to verify post-cutoff claims.
-- Plan history is stored in `${CLAUDE_PLUGIN_DATA_DIR}/plan-history.jsonl`. The validator references this to avoid re-raising addressed issues.
+- Plan history is stored in `${CLAUDE_PLUGIN_DATA}/plan-history.jsonl`. The validator references this to avoid re-raising addressed issues.
 - One validation per artifact per session. The validator will not re-validate the same unchanged artifact.

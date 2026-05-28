@@ -10,7 +10,7 @@ Remove the brainstorming lock file to return to keyword-gated grounding.
 
 Run this Bash command:
 ```bash
-rm -f "${CLAUDE_PLUGIN_DATA_DIR:-$HOME/.claude/plugins/data/gemini-plugin}/brainstorm.lock"
+rm -f "${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/gemini-plugin}/brainstorm.lock"
 ```
 
 Then confirm to the user: "Brainstorming mode OFF. Gemini grounding will only fire on keyword-matching prompts."

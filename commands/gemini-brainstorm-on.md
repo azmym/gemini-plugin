@@ -10,7 +10,7 @@ Create the brainstorming lock file to enable unconditional Gemini grounding on e
 
 Run this Bash command:
 ```bash
-mkdir -p "${CLAUDE_PLUGIN_DATA_DIR:-$HOME/.claude/plugins/data/gemini-plugin}" && touch "${CLAUDE_PLUGIN_DATA_DIR:-$HOME/.claude/plugins/data/gemini-plugin}/brainstorm.lock"
+mkdir -p "${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/gemini-plugin}" && touch "${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/gemini-plugin}/brainstorm.lock"
 ```
 
 Then confirm to the user: "Brainstorming mode ON. Gemini will ground every prompt until you run /gemini-plugin:gemini-brainstorm-off or the session ends."

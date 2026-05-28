@@ -94,7 +94,7 @@ The next session start will regenerate it.
 
 ## State directory
 
-All hook state lives in `${CLAUDE_PLUGIN_DATA_DIR}`:
+All hook state lives in `${CLAUDE_PLUGIN_DATA}`:
 
 | File | Purpose |
 |---|---|

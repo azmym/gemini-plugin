@@ -9,7 +9,7 @@ check_gemini_available
 ensure_data_dir
 
 HASH=$(repo_hash)
-RISK_MAP="${CLAUDE_PLUGIN_DATA_DIR}/risk-map-${HASH}.json"
+RISK_MAP="${CLAUDE_PLUGIN_DATA}/risk-map-${HASH}.json"
 
 # TTL check: skip if risk map exists and is < 24h old
 if [ -f "$RISK_MAP" ]; then
@@ -24,4 +24,12 @@ TREE=$(find "$REPO_ROOT" -maxdepth 4 -type f \( -name "*.go" -o -name "*.py" -o 
 
 DIRECTIVE=$(build_risk_map_directive "$REPO_ROOT" "$TREE")
 echo "$DIRECTIVE" >&2
+
+# Persist a TTL marker so the next session start (within 24h) skips the
+# directive emission. The summarizer subagent is expected to overwrite
+# this file with the actual risk-map JSON; the placeholder ensures the
+# TTL gate works even if the subagent never writes (denied, errored, etc).
+printf '{"placeholder":true,"updated_at":"%s"}\n' \
+  "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$RISK_MAP"
+
 exit 2

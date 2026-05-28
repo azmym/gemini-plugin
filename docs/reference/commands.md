@@ -86,7 +86,7 @@ The plugin ships 5 slash commands. Three invoke subagents for manual consultatio
 
 **Arguments:** none
 
-**Behavior:** Creates `brainstorm.lock` in `${CLAUDE_PLUGIN_DATA_DIR}`. While this file exists, the `UserPromptSubmit` hook fires on EVERY prompt (bypassing the keyword regex gate).
+**Behavior:** Creates `brainstorm.lock` in `${CLAUDE_PLUGIN_DATA}`. While this file exists, the `UserPromptSubmit` hook fires on EVERY prompt (bypassing the keyword regex gate).
 
 **Confirmation message:** "Brainstorming mode ON. Gemini will ground every prompt until you run /gemini-plugin:gemini-brainstorm-off or the session ends."
 
@@ -100,6 +100,6 @@ The plugin ships 5 slash commands. Three invoke subagents for manual consultatio
 
 **Arguments:** none
 
-**Behavior:** Removes `brainstorm.lock` from `${CLAUDE_PLUGIN_DATA_DIR}`. The `UserPromptSubmit` hook returns to keyword-gated mode.
+**Behavior:** Removes `brainstorm.lock` from `${CLAUDE_PLUGIN_DATA}`. The `UserPromptSubmit` hook returns to keyword-gated mode.
 
 **Confirmation message:** "Brainstorming mode OFF. Gemini grounding will only fire on keyword-matching prompts."

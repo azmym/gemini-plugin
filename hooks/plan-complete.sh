@@ -9,7 +9,9 @@ check_gemini_available
 ensure_data_dir
 
 INPUT=$(cat)
-PLAN_TEXT=$(echo "$INPUT" | jq -r '.plan // .content // empty')
+# PreToolUse(ExitPlanMode) puts the plan text in tool_input.plan;
+# accept legacy .plan / .content keys for direct invocation in tests.
+PLAN_TEXT=$(echo "$INPUT" | jq -r '.tool_input.plan // .plan // .content // empty')
 
 if [ -z "$PLAN_TEXT" ]; then
   exit 0

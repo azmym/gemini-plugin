@@ -15,6 +15,7 @@
   grep -q "CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS" rules/using-gemini.md
 }
 
-@test "rule documents GEMINI_API_KEY unset behavior" {
-  grep -q "GEMINI_API_KEY" rules/using-gemini.md
+@test "rule documents API key unavailable behavior (graceful no-op)" {
+  grep -qE "API key|api key" rules/using-gemini.md
+  grep -qE "no-op|gracefully" rules/using-gemini.md
 }

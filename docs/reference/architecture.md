@@ -15,8 +15,8 @@ graph TB
     subgraph "gemini-plugin (hooks layer)"
         H1[SessionStart] --> |exit 2| Claude
         H2[UserPromptSubmit] --> |exit 2| Claude
-        H3[ExitPlanMode] --> |exit 2| Claude
-        H4[PreToolUse Bash] --> |exit 2| Claude
+        H3[PreToolUse Bash] --> |exit 2| Claude
+        H4[PreToolUse ExitPlanMode] --> |exit 2| Claude
         H5[PreCompact] --> |exit 2| Claude
         H6[Stop] --> |exit 2| Claude
     end
@@ -120,14 +120,14 @@ sequenceDiagram
 
 | Component | Count | Location | Purpose |
 |---|---|---|---|
-| Plugin manifest | 1 | `.claude-plugin/plugin.json` | Metadata + MCP server registration |
-| Marketplace catalog | 1 | `.claude-plugin/marketplace.json` | Marketplace distribution |
+| Plugin manifest | 1 | `.claude-plugin/plugin.json` | Metadata, userConfig prompt, MCP server registration |
 | Skills | 8 | `skills/*/SKILL.md` | When/how to use Gemini capabilities |
 | Subagents | 4 | `agents/*.md` | Role-specific reasoning with structured output |
 | Commands | 5 | `commands/*.md` | User-invoked slash commands |
-| Hooks | 7 | `hooks/hooks.json` + `hooks/*.sh` | Auto-trigger coordination |
+| Hooks | 7 | `hooks/hooks.json` + `hooks/*.sh` | 6 triggers + 1 verdict handler |
 | Shared library | 2 | `hooks/lib/*.sh` | JSON helpers, gates, prompt builders |
 | Rules | 1 | `rules/using-gemini.md` | Session-level usage guidance |
+| Marketplace | external | [SynthForge](https://github.com/azmym/SynthForge) | Distribution catalog |
 
 ## API key configuration
 
@@ -172,7 +172,7 @@ All 4 subagents inherit this MCP connection from the parent session (plugin suba
 
 ```mermaid
 graph LR
-    subgraph "CLAUDE_PLUGIN_DATA_DIR"
+    subgraph "CLAUDE_PLUGIN_DATA"
         RM[risk-map-hash.json]
         PH[plan-history.jsonl]
         SS[session-state-id.json]

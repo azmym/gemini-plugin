@@ -1,27 +1,28 @@
 #!/usr/bin/env bats
 
 setup() {
-  export CLAUDE_PLUGIN_DATA_DIR="$BATS_TMPDIR/test-data-$$"
-  export GEMINI_API_KEY="test-key"
+  export CLAUDE_PLUGIN_DATA="$BATS_TMPDIR/test-data-$$"
+  # Hooks now look at CLAUDE_PLUGIN_OPTION_GEMINI_API_KEY first; legacy
+  # GEMINI_API_KEY is the fallback. Set the canonical one in setup.
+  export CLAUDE_PLUGIN_OPTION_GEMINI_API_KEY="test-key"
   export CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=0
-  mkdir -p "$CLAUDE_PLUGIN_DATA_DIR"
+  mkdir -p "$CLAUDE_PLUGIN_DATA"
 }
 
 teardown() {
-  rm -rf "$CLAUDE_PLUGIN_DATA_DIR"
+  rm -rf "$CLAUDE_PLUGIN_DATA"
 }
 
 # --- session-start-risk-map ---
 
-@test "session-start: exits 0 when GEMINI_API_KEY unset" {
-  unset GEMINI_API_KEY
-  run bash -c 'echo "{}" | ./hooks/session-start-risk-map.sh'
+@test "session-start: exits 0 when no API key in any var" {
+  run bash -c 'unset CLAUDE_PLUGIN_OPTION_GEMINI_API_KEY GEMINI_API_KEY; echo "{}" | ./hooks/session-start-risk-map.sh'
   [ "$status" -eq 0 ]
 }
 
 @test "session-start: exits 0 when risk map is fresh" {
   HASH=$(bash -c 'source hooks/lib/common.sh; repo_hash')
-  touch "$CLAUDE_PLUGIN_DATA_DIR/risk-map-${HASH}.json"
+  touch "$CLAUDE_PLUGIN_DATA/risk-map-${HASH}.json"
   run bash -c 'echo "{}" | ./hooks/session-start-risk-map.sh'
   [ "$status" -eq 0 ]
 }
@@ -31,6 +32,19 @@ teardown() {
   [ "$status" -eq 2 ]
   [[ "$output" == *"gemini-summarizer"* ]]
   [[ "$output" == *"BUILD_RISK_MAP"* ]]
+}
+
+@test "session-start: writes placeholder file so next run hits TTL gate" {
+  HASH=$(bash -c 'source hooks/lib/common.sh; repo_hash')
+  RISK_MAP="$CLAUDE_PLUGIN_DATA/risk-map-${HASH}.json"
+  # First run should write the placeholder
+  run bash -c 'echo "{}" | ./hooks/session-start-risk-map.sh'
+  [ "$status" -eq 2 ]
+  [ -f "$RISK_MAP" ]
+  jq -e '.placeholder == true' "$RISK_MAP"
+  # Second run within TTL should skip
+  run bash -c 'echo "{}" | ./hooks/session-start-risk-map.sh'
+  [ "$status" -eq 0 ]
 }
 
 # --- user-prompt-grounding ---
@@ -47,7 +61,7 @@ teardown() {
 }
 
 @test "user-prompt-grounding: exits 2 unconditionally when brainstorming" {
-  touch "$CLAUDE_PLUGIN_DATA_DIR/brainstorm.lock"
+  touch "$CLAUDE_PLUGIN_DATA/brainstorm.lock"
   run bash -c 'echo "{\"prompt\":\"fix this typo\"}" | ./hooks/user-prompt-grounding.sh'
   [ "$status" -eq 2 ]
   [[ "$output" == *"GROUND_PROMPT"* ]]
@@ -77,17 +91,27 @@ teardown() {
   [ "$status" -eq 2 ]
 }
 
-# --- plan-complete ---
+@test "pre-destructive-bash: exits 0 for git pull --force (false-positive guard)" {
+  run bash -c 'echo "{\"tool_input\":{\"command\":\"git pull --force\"}}" | ./hooks/pre-destructive-bash.sh'
+  [ "$status" -eq 0 ]
+}
 
-@test "plan-complete: exits 2 with validator directive" {
-  run bash -c 'echo "{\"plan\":\"Step 1: do X. Step 2: do Y.\"}" | ./hooks/plan-complete.sh'
+# --- plan-complete (PreToolUse(ExitPlanMode)) ---
+
+@test "plan-complete: exits 2 with validator directive (PreToolUse shape)" {
+  run bash -c 'echo "{\"tool_input\":{\"plan\":\"Step 1: do X. Step 2: do Y.\"}}" | ./hooks/plan-complete.sh'
   [ "$status" -eq 2 ]
   [[ "$output" == *"gemini-validator"* ]]
   [[ "$output" == *"VALIDATE_PLAN"* ]]
 }
 
+@test "plan-complete: exits 2 with legacy .plan key for backwards-compat" {
+  run bash -c 'echo "{\"plan\":\"Step 1: do X. Step 2: do Y.\"}" | ./hooks/plan-complete.sh'
+  [ "$status" -eq 2 ]
+}
+
 @test "plan-complete: exits 0 when plan is empty" {
-  run bash -c 'echo "{\"plan\":\"\"}" | ./hooks/plan-complete.sh'
+  run bash -c 'echo "{\"tool_input\":{\"plan\":\"\"}}" | ./hooks/plan-complete.sh'
   [ "$status" -eq 0 ]
 }
 
@@ -137,7 +161,7 @@ teardown() {
   # Build valid JSON with jq to avoid quoting issues when embedding VERDICT
   jq -n --arg text "$VERDICT" '{"type":"assistant","message":{"content":[{"text":$text}]}}' > "$TRANSCRIPT"
   # Prime the last-verdict file with identical content so loop guard triggers
-  echo "$VERDICT" > "$CLAUDE_PLUGIN_DATA_DIR/last-verdict-gemini-validator.txt"
+  echo "$VERDICT" > "$CLAUDE_PLUGIN_DATA/last-verdict-gemini-validator.txt"
   run bash -c "echo '{\"agent_type\":\"gemini-validator\",\"transcript_path\":\"${TRANSCRIPT}\"}' | ./hooks/subagent-verdict-handler.sh"
   [ "$status" -eq 0 ]
 }
@@ -146,8 +170,8 @@ teardown() {
 
 @test "all hooks exit 0 when CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1" {
   export CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1
-  run bash -c 'echo "{\"prompt\":\"what version of react?\"}" | ./hooks/user-prompt-grounding.sh'
+  run bash -c 'CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1 echo "{\"prompt\":\"what version of react?\"}" | ./hooks/user-prompt-grounding.sh'
   [ "$status" -eq 0 ]
-  run bash -c 'echo "{\"tool_input\":{\"command\":\"rm -rf /\"}}" | ./hooks/pre-destructive-bash.sh'
+  run bash -c 'CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1 echo "{\"tool_input\":{\"command\":\"rm -rf /\"}}" | ./hooks/pre-destructive-bash.sh'
   [ "$status" -eq 0 ]
 }
