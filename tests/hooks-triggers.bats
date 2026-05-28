@@ -59,23 +59,52 @@ teardown() {
 }
 
 # --- user-prompt-grounding ---
+# UserPromptSubmit hook now uses exit 0 + stdout (additionalContext)
+# instead of exit 2 + stderr, because exit 2 BLOCKS the prompt and
+# erases it, showing the stderr text to the user. Exit 0 + stdout
+# lets the prompt proceed and adds the directive to Claude's context.
 
-@test "user-prompt-grounding: exits 0 when no matching keywords and not brainstorming" {
+@test "user-prompt-grounding: exits 0 with no output when no matching keywords and not brainstorming" {
   run bash -c 'echo "{\"prompt\":\"fix this typo\"}" | ./hooks/user-prompt-grounding.sh'
   [ "$status" -eq 0 ]
+  [ -z "$output" ]
 }
 
-@test "user-prompt-grounding: exits 2 when keyword matches" {
+@test "user-prompt-grounding: exits 0 with additionalContext JSON when keyword matches" {
   run bash -c 'echo "{\"prompt\":\"what is the latest version of react?\"}" | ./hooks/user-prompt-grounding.sh'
-  [ "$status" -eq 2 ]
-  [[ "$output" == *"gemini-researcher"* ]]
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "UserPromptSubmit"'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("gemini-researcher")'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("GROUND_PROMPT")'
 }
 
-@test "user-prompt-grounding: exits 2 unconditionally when brainstorming" {
+@test "user-prompt-grounding: exits 0 with additionalContext when brainstorming" {
   touch "$CLAUDE_PLUGIN_DATA/brainstorm.lock"
   run bash -c 'echo "{\"prompt\":\"fix this typo\"}" | ./hooks/user-prompt-grounding.sh'
-  [ "$status" -eq 2 ]
-  [[ "$output" == *"GROUND_PROMPT"* ]]
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("GROUND_PROMPT")'
+}
+
+@test "user-prompt-grounding: regression - operational prompts with release= and app= do NOT trigger" {
+  # Real-world false positive from a Loki/PromQL log query that contained
+  # release="mss-cart-service" and app="mss-cart-service-app". The old
+  # broad regex matched bare \brelease\b and the prompt was blocked.
+  PROMPT='start two agent one look for loki and one for promql to gather clients failing with \"Too late\" for PUT /v1/carts/{week} release=\"mss-cart-service\", app=\"mss-cart-service-app\" for last 24 hours'
+  run bash -c "echo '{\"prompt\":\"$PROMPT\"}' | ./hooks/user-prompt-grounding.sh"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "user-prompt-grounding: matches CVE references" {
+  run bash -c 'echo "{\"prompt\":\"is CVE-2025-1234 fixed in our deps?\"}" | ./hooks/user-prompt-grounding.sh'
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("GROUND_PROMPT")'
+}
+
+@test "user-prompt-grounding: matches 'changelog for X' phrasing" {
+  run bash -c 'echo "{\"prompt\":\"show me the changelog for fastmcp\"}" | ./hooks/user-prompt-grounding.sh'
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("GROUND_PROMPT")'
 }
 
 # --- pre-destructive-bash ---
@@ -85,63 +114,80 @@ teardown() {
   [ "$status" -eq 0 ]
 }
 
-@test "pre-destructive-bash: exits 2 for rm -rf" {
+# pre-destructive-bash now uses exit 0 + JSON with permissionDecision=deny.
+# Per the docs, PreToolUse stdout is debug-log-only unless we return JSON;
+# permissionDecision: deny is the documented way to block a tool call
+# while still being able to inject additionalContext.
+
+@test "pre-destructive-bash: exits 0 with permissionDecision=deny for rm -rf" {
   run bash -c 'echo "{\"tool_input\":{\"command\":\"rm -rf /tmp/foo\"}}" | ./hooks/pre-destructive-bash.sh'
-  [ "$status" -eq 2 ]
-  [[ "$output" == *"gemini-challenger"* ]]
-  [[ "$output" == *"CHALLENGE_DESTRUCTIVE_OP"* ]]
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.permissionDecision == "deny"'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("gemini-challenger")'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("CHALLENGE_DESTRUCTIVE_OP")'
 }
 
-@test "pre-destructive-bash: exits 2 for git push --force" {
+@test "pre-destructive-bash: denies git push --force" {
   run bash -c 'echo "{\"tool_input\":{\"command\":\"git push origin main --force\"}}" | ./hooks/pre-destructive-bash.sh'
-  [ "$status" -eq 2 ]
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.permissionDecision == "deny"'
 }
 
-@test "pre-destructive-bash: exits 2 for DROP TABLE" {
+@test "pre-destructive-bash: denies DROP TABLE" {
   run bash -c 'echo "{\"tool_input\":{\"command\":\"psql -c \\\"DROP TABLE users\\\"\"}}" | ./hooks/pre-destructive-bash.sh'
-  [ "$status" -eq 2 ]
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.permissionDecision == "deny"'
 }
 
-@test "pre-destructive-bash: exits 0 for git pull --force (false-positive guard)" {
+@test "pre-destructive-bash: passes through git pull --force (false-positive guard)" {
   run bash -c 'echo "{\"tool_input\":{\"command\":\"git pull --force\"}}" | ./hooks/pre-destructive-bash.sh'
   [ "$status" -eq 0 ]
+  [ -z "$output" ]
 }
 
 # --- plan-complete (PreToolUse(ExitPlanMode)) ---
+# Uses exit 0 + JSON additionalContext (no deny — the plan should reach
+# the user; the validator runs alongside).
 
-@test "plan-complete: exits 2 with validator directive (PreToolUse shape)" {
+@test "plan-complete: exits 0 with validator directive in additionalContext" {
   run bash -c 'echo "{\"tool_input\":{\"plan\":\"Step 1: do X. Step 2: do Y.\"}}" | ./hooks/plan-complete.sh'
-  [ "$status" -eq 2 ]
-  [[ "$output" == *"gemini-validator"* ]]
-  [[ "$output" == *"VALIDATE_PLAN"* ]]
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("gemini-validator")'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("VALIDATE_PLAN")'
 }
 
-@test "plan-complete: exits 2 with legacy .plan key for backwards-compat" {
+@test "plan-complete: accepts legacy .plan key for backwards-compat" {
   run bash -c 'echo "{\"plan\":\"Step 1: do X. Step 2: do Y.\"}" | ./hooks/plan-complete.sh'
-  [ "$status" -eq 2 ]
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("VALIDATE_PLAN")'
 }
 
-@test "plan-complete: exits 0 when plan is empty" {
+@test "plan-complete: exits 0 silently when plan is empty" {
   run bash -c 'echo "{\"tool_input\":{\"plan\":\"\"}}" | ./hooks/plan-complete.sh'
   [ "$status" -eq 0 ]
+  [ -z "$output" ]
 }
 
 # --- stop-done-claim ---
+# Uses exit 0 + JSON with decision=block + additionalContext.
 
-@test "stop-done-claim: exits 0 when no tool used" {
+@test "stop-done-claim: exits 0 silently when no tool used" {
   run bash -c 'echo "{\"assistant_message\":\"Done!\",\"tool_used\":\"false\"}" | ./hooks/stop-done-claim.sh'
   [ "$status" -eq 0 ]
+  [ -z "$output" ]
 }
 
-@test "stop-done-claim: exits 0 when no completion word" {
+@test "stop-done-claim: exits 0 silently when no completion word" {
   run bash -c 'echo "{\"assistant_message\":\"Here is the code\",\"tool_used\":\"true\"}" | ./hooks/stop-done-claim.sh'
   [ "$status" -eq 0 ]
+  [ -z "$output" ]
 }
 
-@test "stop-done-claim: exits 2 when tool used and completion claimed" {
+@test "stop-done-claim: blocks via JSON when tool used and completion claimed" {
   run bash -c 'echo "{\"assistant_message\":\"I have completed the task.\",\"tool_used\":\"true\",\"original_ask\":\"add a button\"}" | ./hooks/stop-done-claim.sh'
-  [ "$status" -eq 2 ]
-  [[ "$output" == *"VALIDATE_DONE_CLAIM"* ]]
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.decision == "block"'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("VALIDATE_DONE_CLAIM")'
 }
 
 # --- subagent-verdict-handler ---

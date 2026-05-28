@@ -4,6 +4,25 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-05-28
+
+Hot-fix release for hook-event/exit-code mismatches found by an audit of every hook against the official Claude Code hooks documentation. The user-visible symptom in v0.1.2 was a wall-of-text "blocked by hook" message on every prompt that contained the words `release`, `app`, `api`, `version`, or several other common operational terms.
+
+### Fixed
+
+- **`user-prompt-grounding.sh`:** switched from `exit 2 + stderr` to `exit 0 + JSON additionalContext`. UserPromptSubmit's exit-2 path **blocks the prompt and erases it**, showing the directive to the user as the block reason. The new pattern lets the prompt proceed and adds the directive to Claude's context discreetly.
+- **`user-prompt-grounding.sh`:** narrowed the keyword regex. The old gate matched bare words like `release`, `app`, `api` which fired false positives on prompts like `release="mss-cart-service"` or PromQL queries. The new regex requires **contextual phrases** that strongly imply post-cutoff questions: "latest version of X", "version of X", "CVE-YYYY-NNN", "changelog for X", "deprecated in X", "breaking change in X", "security advisory".
+- **`pre-destructive-bash.sh`:** switched to `exit 0 + JSON permissionDecision: deny + additionalContext`. Per the docs, PreToolUse stdout is debug-log-only unless wrapped in JSON; the documented way to block a tool call is `permissionDecision: deny`.
+- **`plan-complete.sh`:** switched to `exit 0 + JSON additionalContext`. The plan should still reach the user; only the validator runs alongside.
+- **`pre-compact-summary.sh`:** switched to `exit 0 + JSON additionalContext`. The hook no longer blocks compaction; it just injects the summarizer directive.
+- **`stop-done-claim.sh`:** switched to `exit 0 + JSON decision: block + additionalContext`. The block prevents Claude from stopping until the validator's verdict comes back; the user sees a clean "validating done-claim" reason.
+
+### Added
+
+- New regression test: `user-prompt-grounding: regression - operational prompts with release= and app= do NOT trigger`.
+- New tests for CVE matching and "changelog for X" phrasing.
+- All hook scripts now have a `trap ... ERR` that writes a diagnostic line to stderr instead of crashing silently.
+
 ## [0.1.2] - 2026-05-28
 
 Hot-fix release. v0.1.1 was correct in isolation but failed on real session startup with the error `SessionStart:startup hook error: Failed with non-blocking status code: No stderr output`. Three combining bugs.
@@ -48,7 +67,8 @@ First usable release. v0.1.0 was tagged but never published as a GitHub Release 
 - 1 session rules file.
 - Full docs (Diataxis structure: tutorial, how-to, reference, explanation).
 
-[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/azmym/gemini-plugin/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/azmym/gemini-plugin/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/azmym/gemini-plugin/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/azmym/gemini-plugin/releases/tag/v0.1.0
