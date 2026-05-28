@@ -59,49 +59,52 @@ teardown() {
 }
 
 # --- user-prompt-grounding ---
-# UserPromptSubmit hook now uses exit 0 + stdout (additionalContext)
-# instead of exit 2 + stderr, because exit 2 BLOCKS the prompt and
-# erases it, showing the stderr text to the user. Exit 0 + stdout
-# lets the prompt proceed and adds the directive to Claude's context.
+# UserPromptSubmit hook uses exit 0 + JSON additionalContext (because
+# exit 2 erases the prompt). As of v0.2.0, brainstorming is ON by
+# default, so the hook fires on every prompt unless brainstorm.off
+# exists. The keyword regex only matters in opt-out mode.
 
-@test "user-prompt-grounding: exits 0 with no output when no matching keywords and not brainstorming" {
+@test "user-prompt-grounding: by default (brainstorming on) any prompt triggers grounding" {
+  run bash -c 'echo "{\"prompt\":\"fix this typo\"}" | ./hooks/user-prompt-grounding.sh'
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "UserPromptSubmit"'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("GROUND_PROMPT")'
+}
+
+@test "user-prompt-grounding: opt-out file (brainstorm.off) suppresses grounding on plain prompt" {
+  touch "$CLAUDE_PLUGIN_DATA/brainstorm.off"
   run bash -c 'echo "{\"prompt\":\"fix this typo\"}" | ./hooks/user-prompt-grounding.sh'
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
 
-@test "user-prompt-grounding: exits 0 with additionalContext JSON when keyword matches" {
+@test "user-prompt-grounding: opt-out + keyword still triggers grounding" {
+  touch "$CLAUDE_PLUGIN_DATA/brainstorm.off"
   run bash -c 'echo "{\"prompt\":\"what is the latest version of react?\"}" | ./hooks/user-prompt-grounding.sh'
   [ "$status" -eq 0 ]
-  echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "UserPromptSubmit"'
   echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("gemini-researcher")'
   echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("GROUND_PROMPT")'
 }
 
-@test "user-prompt-grounding: exits 0 with additionalContext when brainstorming" {
-  touch "$CLAUDE_PLUGIN_DATA/brainstorm.lock"
-  run bash -c 'echo "{\"prompt\":\"fix this typo\"}" | ./hooks/user-prompt-grounding.sh'
-  [ "$status" -eq 0 ]
-  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("GROUND_PROMPT")'
-}
-
-@test "user-prompt-grounding: regression - operational prompts with release= and app= do NOT trigger" {
-  # Real-world false positive from a Loki/PromQL log query that contained
-  # release="mss-cart-service" and app="mss-cart-service-app". The old
-  # broad regex matched bare \brelease\b and the prompt was blocked.
+@test "user-prompt-grounding: opt-out + operational prompt (release=/app=) does NOT trigger" {
+  # Real-world false positive regression: prompts with release=
+  # and app= must not match the narrow keyword regex.
+  touch "$CLAUDE_PLUGIN_DATA/brainstorm.off"
   PROMPT='start two agent one look for loki and one for promql to gather clients failing with \"Too late\" for PUT /v1/carts/{week} release=\"mss-cart-service\", app=\"mss-cart-service-app\" for last 24 hours'
   run bash -c "echo '{\"prompt\":\"$PROMPT\"}' | ./hooks/user-prompt-grounding.sh"
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
 
-@test "user-prompt-grounding: matches CVE references" {
+@test "user-prompt-grounding: opt-out + CVE reference triggers grounding" {
+  touch "$CLAUDE_PLUGIN_DATA/brainstorm.off"
   run bash -c 'echo "{\"prompt\":\"is CVE-2025-1234 fixed in our deps?\"}" | ./hooks/user-prompt-grounding.sh'
   [ "$status" -eq 0 ]
   echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("GROUND_PROMPT")'
 }
 
-@test "user-prompt-grounding: matches 'changelog for X' phrasing" {
+@test "user-prompt-grounding: opt-out + 'changelog for X' triggers grounding" {
+  touch "$CLAUDE_PLUGIN_DATA/brainstorm.off"
   run bash -c 'echo "{\"prompt\":\"show me the changelog for fastmcp\"}" | ./hooks/user-prompt-grounding.sh'
   [ "$status" -eq 0 ]
   echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("GROUND_PROMPT")'

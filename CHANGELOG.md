@@ -4,6 +4,18 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-05-28
+
+### Changed (BREAKING-ISH default)
+
+- **Brainstorming mode is now ON by default.** Every `UserPromptSubmit` triggers a `gemini-researcher` consultation, regardless of whether the prompt matches the narrow keyword regex. This catches a much larger fraction of stale-training-data answers but adds a Gemini call to every prompt. Cost-conscious users can opt out with `/gemini-plugin:gemini-brainstorm-off`.
+- **Inverted opt-in flag file.** The `brainstorm.lock` file from v0.1.x is replaced by `brainstorm.off`. The semantics flipped: presence of `brainstorm.off` means "skip grounding unless the prompt matches the keyword gate"; absence means "ground everything". Existing `brainstorm.lock` files are silently ignored (now a no-op since on-by-default).
+- `/gemini-plugin:gemini-brainstorm-off` now creates `brainstorm.off`. `/gemini-plugin:gemini-brainstorm-on` removes it (the post-install default state).
+
+### Migration notes
+
+If you had `brainstorm.lock` set in v0.1.x to force grounding, you can delete it (it's a no-op now). If you want LESS grounding than the new default, run `/gemini-plugin:gemini-brainstorm-off` once.
+
 ## [0.1.3] - 2026-05-28
 
 Hot-fix release for hook-event/exit-code mismatches found by an audit of every hook against the official Claude Code hooks documentation. The user-visible symptom in v0.1.2 was a wall-of-text "blocked by hook" message on every prompt that contained the words `release`, `app`, `api`, `version`, or several other common operational terms.
@@ -67,7 +79,8 @@ First usable release. v0.1.0 was tagged but never published as a GitHub Release 
 - 1 session rules file.
 - Full docs (Diataxis structure: tutorial, how-to, reference, explanation).
 
-[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/azmym/gemini-plugin/compare/v0.1.3...v0.2.0
 [0.1.3]: https://github.com/azmym/gemini-plugin/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/azmym/gemini-plugin/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/azmym/gemini-plugin/compare/v0.1.0...v0.1.1

@@ -91,8 +91,8 @@ Three layers do the work: **hooks** coordinate (read events, apply gates, emit d
 | `/gemini-plugin:gemini-validate <subject>` | Ask Gemini to check a file, plan, or claim for gaps and hallucinations |
 | `/gemini-plugin:gemini-challenge <topic>` | Get at least two alternatives and a list of objections to any decision |
 | `/gemini-plugin:gemini-research <query>` | Quick web search with citations (add `--deep` for multi-source synthesis) |
-| `/gemini-plugin:gemini-brainstorm-on` | Ground every prompt in live web data until you turn it off |
-| `/gemini-plugin:gemini-brainstorm-off` | Return to keyword-gated grounding |
+| `/gemini-plugin:gemini-brainstorm-off` | Opt out of grounding-on-every-prompt (recommended for chatty sessions to control cost). Falls back to narrow keyword matching. |
+| `/gemini-plugin:gemini-brainstorm-on` | Re-enable grounding on every prompt after a previous opt-out (this is the default after install) |
 
 ## Auto-triggers
 
@@ -101,7 +101,7 @@ These fire without any action on your part:
 | Trigger | When | What you see |
 |---|---|---|
 | Session start | Once per project per day | A risk map of high-fragility zones in your repo |
-| Prompt grounding | On prompts containing version, API, CVE, library, or similar keywords (or always, in brainstorm mode) | Citations prepended to Claude's answer |
+| Prompt grounding | **On every prompt by default** (opt out with `/gemini-plugin:gemini-brainstorm-off`); after opt-out, only fires on prompts matching narrow patterns like "latest version of X", "CVE-YYYY-NNN", or "changelog for X" | Citations prepended to Claude's answer |
 | Plan validation | When Claude exits plan mode | A pass or a list of gaps to address before proceeding |
 | Destructive command | Before `rm -rf`, `--force` pushes, `DROP TABLE`, and similar | Alternatives and a block if a safer path exists |
 | Pre-compact | Before context compaction | A structured summary of decisions and open work |
@@ -125,14 +125,16 @@ Add the agent to `permissions.deny` in your Claude Code settings:
 }
 ```
 
-**Turn brainstorm mode on or off:**
+**Brainstorm mode (on by default as of v0.2.0):**
+
+Every prompt is grounded in live web data. This catches stale-training-data answers but does add a Gemini call (and a small latency hit) to every prompt, even trivial ones. Two ways to manage it:
 
 ```
-/gemini-plugin:gemini-brainstorm-on
-/gemini-plugin:gemini-brainstorm-off
+/gemini-plugin:gemini-brainstorm-off  # opt out: falls back to keyword-only grounding
+/gemini-plugin:gemini-brainstorm-on   # re-enable after a previous opt-out
 ```
 
-Brainstorm mode grounds every prompt in live web data, not just keyword-matching ones. Useful for design sessions; turn it off when you want less interruption.
+When opted out, the grounding hook only fires on prompts that look like questions about post-cutoff information (matching patterns like `latest version of X`, `CVE-YYYY-NNN`, `changelog for X`, `deprecated in X`).
 
 ## Requirements
 
