@@ -6,11 +6,17 @@ Built on [gemini-mcp](https://github.com/azmym/gemini-mcp) (13 MCP tools coverin
 
 ## Install
 
-```bash
-# Add the marketplace
-/plugin marketplace add azmym/gemini-plugin
+Recommended (via the SynthForge marketplace, which aggregates this and other plugins):
 
-# Install the plugin (you'll be prompted for your API key)
+```bash
+/plugin marketplace add azmym/SynthForge
+/plugin install gemini-plugin@synthforge
+```
+
+Or install this plugin directly without going through SynthForge:
+
+```bash
+/plugin marketplace add azmym/gemini-plugin
 /plugin install gemini-plugin@gemini-marketplace
 ```
 

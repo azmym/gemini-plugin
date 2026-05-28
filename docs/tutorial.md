@@ -11,7 +11,14 @@ This tutorial walks you through installing the plugin, running your first valida
 
 ## Step 1: Install the plugin
 
-Open Claude Code and run:
+Open Claude Code and add the SynthForge marketplace, then install the plugin:
+
+```
+/plugin marketplace add azmym/SynthForge
+/plugin install gemini-plugin@synthforge
+```
+
+Alternative (direct install without going through SynthForge):
 
 ```
 /plugin marketplace add azmym/gemini-plugin
