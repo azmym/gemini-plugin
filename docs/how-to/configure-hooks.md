@@ -102,7 +102,7 @@ All hook state lives in `${CLAUDE_PLUGIN_DATA}`:
 | `plan-history.jsonl` | Append-only log of all verdicts |
 | `session-state-<id>.json` | Pre-compact session summaries |
 | `last-verdict-<agent>.txt` | Loop guard fingerprint |
-| `brainstorm.lock` | Unconditional grounding flag |
+| `brainstorm.off` | Opt-out flag for grounding-on-every-prompt (presence = OFF; absence = ON, the default). Toggled by `/gemini-plugin:gemini-brainstorm-on` and `/gemini-plugin:gemini-brainstorm-off`. |
 
 ## How blocking works
 

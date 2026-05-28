@@ -83,7 +83,7 @@ Disable when done:
 
 ## Tips
 
-- The researcher uses Haiku by default for quick lookups (fast, cheap)
+- The researcher uses Sonnet for reliable citation discipline (`maxTurns: 12`, runs in background to keep deep-research polling cycles non-blocking)
 - Deep research escalates to `deep-research-max-preview` (slower, comprehensive)
 - Citations are always included; if no sources are found, the researcher says so explicitly (never fabricates)
 - The grounding hook only blocks (exit 2) when it fires; the researcher spawns and Claude waits for citations before answering

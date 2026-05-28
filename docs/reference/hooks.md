@@ -44,7 +44,7 @@ graph LR
 |---|---|
 | Event | `UserPromptSubmit` |
 | Matcher | (none, fires on all prompts) |
-| Gate | Always-on if `brainstorm.lock` exists; otherwise regex: `api|cve|version|release|deprecated|library|package|sdk|framework|upgrade|migrate` |
+| Gate | **Always-on by default** (v0.2.0+); opt out by creating `brainstorm.off` to fall back to a narrow keyword regex (`latest version of X`, `CVE-YYYY-NNN`, `changelog for X`, etc.) |
 | Subagent | `gemini-researcher` (task=GROUND_PROMPT) |
 | Blocking | Yes (exit 2) |
 

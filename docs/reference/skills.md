@@ -23,7 +23,7 @@ The plugin ships 8 task-oriented skills. Skills tell Claude WHEN to reach for Ge
 - Which subagent to use for which situation
 - When to always call Gemini (post-cutoff facts, destructive ops, second opinions)
 - When to never call Gemini (trivial tasks, repeat verdicts, already-in-context answers)
-- Cost discipline (haiku for validation, opt-in deep research)
+- Cost discipline (Sonnet for validator/researcher and Opus for challenger/summarizer; opt-in deep research; brainstorm-off when you want to reduce per-prompt grounding)
 
 **Invocation:** `/gemini-plugin:gemini-when-to-use` or auto-invoked when Claude is uncertain
 

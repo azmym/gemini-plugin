@@ -64,6 +64,8 @@ You will be prompted for your Google AI Studio API key during installation. The 
 
 The plugin auto-registers the `gemini` MCP server. No separate `claude mcp add` step is needed.
 
+> **Heads up on cost.** As of v0.2.0+ brainstorming is on by default, which means every prompt is grounded with a Gemini call. Combined with v0.3.0's bumped subagent models (Sonnet for validator/researcher, Opus for challenger/summarizer), this is meaningfully more expensive than v0.1.x. If you want to dial it back, run `/gemini-plugin:gemini-brainstorm-off` to fall back to keyword-only grounding.
+
 ## What it does for you
 
 | Situation | What fires | What you get |
