@@ -1,16 +1,18 @@
 ---
-description: Enable unconditional Gemini grounding for the current brainstorming session
+description: Re-enable Gemini grounding on every prompt (it is on by default; this only matters if you previously turned it off)
 allowed-tools: Bash
 argument-hint: (no arguments)
 ---
 
 You are running the /gemini-plugin:gemini-brainstorm-on command.
 
-Create the brainstorming lock file to enable unconditional Gemini grounding on every user prompt (bypassing the keyword regex gate).
+As of v0.2.0, brainstorming mode is ON by default. This command exists to re-enable it after a previous `/gemini-plugin:gemini-brainstorm-off` call. It removes the `brainstorm.off` opt-out file.
 
 Run this Bash command:
 ```bash
-mkdir -p "${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/gemini-plugin}" && touch "${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/gemini-plugin}/brainstorm.lock"
+DATA="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/gemini-plugin}"
+mkdir -p "$DATA"
+rm -f "$DATA/brainstorm.off"
 ```
 
-Then confirm to the user: "Brainstorming mode ON. Gemini will ground every prompt until you run /gemini-plugin:gemini-brainstorm-off or the session ends."
+Then confirm to the user: "Brainstorming mode ON. Gemini will now ground every prompt with live web data."

@@ -41,13 +41,25 @@ repo_hash() {
   echo -n "$root" | shasum -a 256 | cut -c1-12
 }
 
-# Detect if brainstorming session is active.
-# Returns 0 (true) if brainstorming detected, 1 otherwise.
+# Detect if brainstorming mode is active.
+#
+# As of v0.2.0 brainstorming is ON by default (every UserPromptSubmit
+# is grounded). Users opt OUT by creating `brainstorm.off` in the data
+# directory; that file is the kill switch.
+#
+# Two-file convention for forwards compatibility:
+#   brainstorm.off  → present means OFF (overrides everything else)
+#   brainstorm.lock → legacy explicit-on flag from v0.1.x; still honored
+#                     but a no-op in practice since default is now ON
+#
+# Returns 0 (brainstorming active) when neither file blocks it.
 is_brainstorming() {
-  if [ -f "$(data_dir)/brainstorm.lock" ]; then
-    return 0
+  local data
+  data="$(data_dir)"
+  if [ -f "${data}/brainstorm.off" ]; then
+    return 1
   fi
-  return 1
+  return 0
 }
 
 # Read the last N plan-history entries for a specific task type.

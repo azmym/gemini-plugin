@@ -40,15 +40,26 @@ teardown() {
   [[ "${output}" =~ ^[a-f0-9]{12}$ ]]
 }
 
-@test "is_brainstorming returns 0 when lock file exists" {
-  touch "$CLAUDE_PLUGIN_DATA/brainstorm.lock"
+@test "is_brainstorming returns 0 by default (brainstorming is on)" {
+  # As of v0.2.0 brainstorming is ON by default. is_brainstorming
+  # returns 0 (active) unless brainstorm.off is present.
   run bash -c "source hooks/lib/common.sh; is_brainstorming"
   [ "$status" -eq 0 ]
 }
 
-@test "is_brainstorming returns 1 when no lock file" {
+@test "is_brainstorming returns 1 when brainstorm.off file exists" {
+  touch "$CLAUDE_PLUGIN_DATA/brainstorm.off"
   run bash -c "source hooks/lib/common.sh; is_brainstorming"
   [ "$status" -eq 1 ]
+}
+
+@test "is_brainstorming returns 0 when only legacy brainstorm.lock is present" {
+  # The legacy flag from v0.1.x no longer changes behavior either way
+  # (brainstorming is on by default). Touching brainstorm.lock alone
+  # leaves brainstorming active.
+  touch "$CLAUDE_PLUGIN_DATA/brainstorm.lock"
+  run bash -c "source hooks/lib/common.sh; is_brainstorming"
+  [ "$status" -eq 0 ]
 }
 
 @test "is_destructive_command matches rm -rf" {

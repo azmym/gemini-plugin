@@ -33,7 +33,7 @@ COMMANDS_DIR="commands"
   grep -q "\-\-deep" "$COMMANDS_DIR/gemini-research.md"
 }
 
-@test "brainstorm commands reference brainstorm.lock" {
-  grep -q "brainstorm.lock" "$COMMANDS_DIR/gemini-brainstorm-on.md"
-  grep -q "brainstorm.lock" "$COMMANDS_DIR/gemini-brainstorm-off.md"
+@test "brainstorm commands reference brainstorm.off (the v0.2.0 opt-out flag)" {
+  grep -q "brainstorm.off" "$COMMANDS_DIR/gemini-brainstorm-on.md"
+  grep -q "brainstorm.off" "$COMMANDS_DIR/gemini-brainstorm-off.md"
 }
