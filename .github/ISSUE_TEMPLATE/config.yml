@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or discussion
+    url: https://github.com/azmym/gemini-plugin/discussions
+    about: Ask a question or start a discussion (please don't open an issue for general questions)
+  - name: Security vulnerability
+    url: https://github.com/azmym/gemini-plugin/security/advisories/new
+    about: Report a security issue privately (do NOT use a public issue)

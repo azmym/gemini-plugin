@@ -1,0 +1,41 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  bats:
+    name: bats (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bats and jq
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y bats jq
+          else
+            brew install bats-core jq
+          fi
+
+      - name: Verify hook scripts are executable
+        run: |
+          for f in hooks/*.sh; do
+            test -x "$f" || { echo "::error::$f is not executable"; exit 1; }
+          done
+
+      - name: Run bats tests
+        run: bats tests/
+
+      - name: Validate JSON manifests
+        run: |
+          jq empty .claude-plugin/plugin.json
+          jq empty hooks/hooks.json
