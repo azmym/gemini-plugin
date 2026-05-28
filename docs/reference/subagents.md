@@ -6,10 +6,10 @@ The plugin ships 4 specialized subagents. Each has a focused role, restricted to
 
 | Agent | Model | Effort | Max turns | Memory | Color | Background |
 |---|---|---|---|---|---|---|
-| gemini-validator | haiku | medium | 3 | project | blue | false |
-| gemini-challenger | sonnet | high | 4 | (none) | red | false |
-| gemini-researcher | haiku | medium | 6 | (none) | green | true |
-| gemini-summarizer | sonnet | high | 2 | project | purple | false |
+| gemini-validator | sonnet | medium | 6 | project | blue | false |
+| gemini-challenger | opus | high | 8 | (none) | red | false |
+| gemini-researcher | sonnet | medium | 12 | (none) | green | true |
+| gemini-summarizer | opus | high | 4 | project | purple | false |
 
 All subagents preload the `gemini-when-to-use` skill via the `skills:` frontmatter field.
 

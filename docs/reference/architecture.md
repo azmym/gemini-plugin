@@ -195,9 +195,9 @@ State is local, session-scoped, and disposable. Deleting the data directory rese
 
 | Subagent | Model | Rationale |
 |---|---|---|
-| gemini-validator | Haiku | High-volume, structured output; speed matters |
-| gemini-challenger | Sonnet | Needs creative reasoning for alternatives |
-| gemini-researcher | Haiku | Grounded search is simple retrieval |
-| gemini-summarizer | Sonnet | Large input, requires precise compression |
+| gemini-validator | Sonnet | Reliable structured-output for JSON verdicts; bumped from Haiku in v0.3.0 after partial-response failures |
+| gemini-challenger | Opus | Hardest reasoning task (creative alternatives + objections); bumped from Sonnet in v0.3.0 |
+| gemini-researcher | Sonnet | Multi-source synthesis and citation discipline; bumped from Haiku in v0.3.0 |
+| gemini-summarizer | Opus | Large-input compression with structured output; bumped from Sonnet in v0.3.0 |
 
-All subagents call Gemini models via MCP (default: `gemini-3.5-flash` for chat/search, `gemini-3.1-pro-preview` for generate). The Claude model (Haiku/Sonnet) handles orchestration and structured output; the Gemini model handles reasoning and web access.
+All subagents call Gemini models via MCP (default: `gemini-3.5-flash` for chat/search, `gemini-3.1-pro-preview` for generate). The Claude model handles orchestration and JSON structuring; the Gemini model handles reasoning and web access. The Claude-side model bumps in v0.3.0 fixed a class of partial-response failures where validator and other agents were exiting before producing the final JSON verdict.

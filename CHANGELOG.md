@@ -4,6 +4,34 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-28
+
+### Changed
+
+- **All subagent models bumped one tier** to fix partial-response failures where the validator (and others) were exiting before delivering the final JSON verdict.
+
+  | Agent | Before | After |
+  |---|---|---|
+  | gemini-validator | haiku | sonnet |
+  | gemini-challenger | sonnet | opus |
+  | gemini-researcher | haiku | sonnet |
+  | gemini-summarizer | sonnet | opus |
+
+- **All subagent `maxTurns` doubled** so agents have room to read inputs, call Gemini, verify, and emit JSON without running out of budget mid-response.
+
+  | Agent | Before | After |
+  |---|---|---|
+  | gemini-validator | 3 | 6 |
+  | gemini-challenger | 4 | 8 |
+  | gemini-researcher | 6 | 12 |
+  | gemini-summarizer | 2 | 4 |
+
+- **Strengthened the "final turn must be JSON only" instruction** in every subagent's system prompt. The verdict-handler hook parses the agent's final assistant message with `jq`; any non-JSON content silently breaks the contract. The new instruction is explicit and includes a turn-budget plan that reserves the last turn exclusively for JSON emission.
+
+### Cost note
+
+Sonnet/Opus per call is 4-5x more expensive than Haiku/Sonnet. Combined with v0.2.0's brainstorm-on-by-default, expect roughly 5-10x higher Gemini cost per session. Use `/gemini-plugin:gemini-brainstorm-off` to reduce researcher invocations to keyword-matching prompts only.
+
 ## [0.2.0] - 2026-05-28
 
 ### Changed (BREAKING-ISH default)
@@ -79,7 +107,8 @@ First usable release. v0.1.0 was tagged but never published as a GitHub Release 
 - 1 session rules file.
 - Full docs (Diataxis structure: tutorial, how-to, reference, explanation).
 
-[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/azmym/gemini-plugin/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/azmym/gemini-plugin/compare/v0.1.3...v0.2.0
 [0.1.3]: https://github.com/azmym/gemini-plugin/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/azmym/gemini-plugin/compare/v0.1.1...v0.1.2

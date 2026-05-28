@@ -9,9 +9,9 @@ tools:
   - mcp__gemini__gemini_generate
   - mcp__gemini__gemini_chat
   - Read
-model: sonnet
+model: opus
 color: red
-maxTurns: 4
+maxTurns: 8
 effort: high
 skills:
   - gemini-when-to-use
@@ -40,7 +40,11 @@ Block only when ALL are true:
 
 ## Output Format
 
-Return ONLY this JSON structure (no markdown, no preamble):
+**CRITICAL: Your FINAL turn must contain ONLY this JSON object, with no
+surrounding text, no code fences, no preamble, and no explanatory prose.**
+
+The verdict-handler hook parses your final assistant message with `jq`,
+so any non-JSON content breaks the contract.
 
 ```json
 {
@@ -64,3 +68,12 @@ Return ONLY this JSON structure (no markdown, no preamble):
 ```
 
 Alternatives array must contain at least 2 items. Objections array may be empty only if verdict=pass. Must_address array drives the next iteration of design discussion.
+
+## Turn budget (8 turns)
+
+- Turn 1-2: read the proposed approach
+- Turn 3-5: brainstorm alternatives via gemini_generate; optional gemini_chat for back-and-forth on tricky cases
+- Turn 6-7: synthesize objections and must_address items
+- Turn 8: emit ONLY the JSON
+
+Never run out of turns mid-response. If you cannot produce 2 alternatives by turn 5, emit verdict=pass with a single alternative and note in must_address what made deeper challenge difficult.

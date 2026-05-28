@@ -10,9 +10,9 @@ tools:
   - mcp__gemini__gemini_start_research
   - mcp__gemini__gemini_get_research_report
   - Read
-model: haiku
+model: sonnet
 color: green
-maxTurns: 6
+maxTurns: 12
 effort: medium
 background: true
 skills:
@@ -48,7 +48,8 @@ Never opine without a citation. Every claim in your answer must be traceable to 
 
 ## Output Format
 
-Return ONLY this JSON structure (no markdown, no preamble):
+**CRITICAL: Your FINAL turn must contain ONLY this JSON object, with no
+surrounding text, no code fences, no preamble, and no explanatory prose.**
 
 ```json
 {
@@ -68,6 +69,10 @@ Return ONLY this JSON structure (no markdown, no preamble):
   "reasoning": "brief explanation of how the answer was derived"
 }
 ```
+
+## Turn budget (12 turns)
+
+Quick lookups should finish in 2-3 turns. Deep research polling can use up to 10 turns (one call to start, then up to 8 polls at 15-second intervals, then 1 turn to synthesize, 1 turn to emit JSON). Reserve the last turn exclusively for the JSON output.
 
 ## Citation Strictness
 
