@@ -20,9 +20,18 @@ check_plugin_enabled() {
   fi
 }
 
-# Ensure CLAUDE_PLUGIN_DATA exists.
+# Resolve the plugin data directory. Returns CLAUDE_PLUGIN_DATA when set
+# (Claude Code provides this for plugin hooks), otherwise falls back to
+# ~/.claude/plugins/data/gemini-plugin so state survives reboots and
+# stays out of /tmp. The default expansion (:-) is required because hook
+# scripts run with `set -u`, which crashes on unset variables.
+data_dir() {
+  echo "${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/plugins/data/gemini-plugin}"
+}
+
+# Ensure the plugin data directory exists.
 ensure_data_dir() {
-  mkdir -p "${CLAUDE_PLUGIN_DATA:-/tmp/gemini-plugin-data}"
+  mkdir -p "$(data_dir)"
 }
 
 # Compute a short hash of the git repo root for cache keying.
@@ -35,12 +44,9 @@ repo_hash() {
 # Detect if brainstorming session is active.
 # Returns 0 (true) if brainstorming detected, 1 otherwise.
 is_brainstorming() {
-  local data_dir="${CLAUDE_PLUGIN_DATA:-/tmp/gemini-plugin-data}"
-  # Signal 4: explicit lock file
-  if [ -f "${data_dir}/brainstorm.lock" ]; then
+  if [ -f "$(data_dir)/brainstorm.lock" ]; then
     return 0
   fi
-  # Signal from stdin context (signals 1-3 checked by caller via prompt content)
   return 1
 }
 
@@ -48,8 +54,8 @@ is_brainstorming() {
 get_plan_history() {
   local task_type="$1"
   local count="${2:-3}"
-  local data_dir="${CLAUDE_PLUGIN_DATA:-/tmp/gemini-plugin-data}"
-  local history_file="${data_dir}/plan-history.jsonl"
+  local history_file
+  history_file="$(data_dir)/plan-history.jsonl"
 
   if [ ! -f "$history_file" ]; then
     echo "[]"

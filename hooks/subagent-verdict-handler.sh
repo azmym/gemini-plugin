@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
+trap 'echo "[gemini-plugin] subagent-verdict-handler crashed at line ${LINENO} (last command: ${BASH_COMMAND})" >&2; exit 0' ERR
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/common.sh"
 
 ensure_data_dir
+DATA="$(data_dir)"
 
 INPUT=$(cat)
 AGENT=$(echo "$INPUT" | jq -r '.agent_type')
@@ -28,7 +31,7 @@ VERDICT=$(echo "$VERDICT_JSON" | jq -r '.verdict // "advisory"' 2>/dev/null || e
 GAPS=$(echo "$VERDICT_JSON" | jq -r '.gaps // .objections // .must_address // [] | if type == "array" then join("\n- ") else . end' 2>/dev/null || echo "")
 
 # Loop guard: identical verdict twice in a row -> downgrade to advisory
-LAST_FILE="${CLAUDE_PLUGIN_DATA}/last-verdict-${AGENT}.txt"
+LAST_FILE="${DATA}/last-verdict-${AGENT}.txt"
 LAST=$(cat "$LAST_FILE" 2>/dev/null || echo "")
 if [ "$VERDICT" = "fail" ] && [ "$VERDICT_JSON" = "$LAST" ]; then
   VERDICT="advisory"
@@ -36,7 +39,7 @@ fi
 echo "$VERDICT_JSON" > "$LAST_FILE"
 
 # Persist for plan-history
-echo "{\"task\":\"$(echo "$INPUT" | jq -r '.task // "unknown"')\",\"agent\":\"${AGENT}\",\"verdict\":\"${VERDICT}\",\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" >> "${CLAUDE_PLUGIN_DATA}/plan-history.jsonl"
+echo "{\"task\":\"$(echo "$INPUT" | jq -r '.task // "unknown"')\",\"agent\":\"${AGENT}\",\"verdict\":\"${VERDICT}\",\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" >> "${DATA}/plan-history.jsonl"
 
 if [ "$VERDICT" = "fail" ] || [ "$VERDICT" = "block" ]; then
   cat >&2 <<EOF

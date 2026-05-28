@@ -27,9 +27,12 @@ teardown() {
   [ "$status" -eq 0 ]
 }
 
-@test "session-start: exits 2 when risk map missing" {
+@test "session-start: exits 0 with directive on stdout when risk map missing" {
+  # SessionStart cannot block via exit 2; the supported pattern is exit 0
+  # and write the directive to stdout (where Claude Code adds it as
+  # additionalContext).
   run bash -c 'echo "{}" | ./hooks/session-start-risk-map.sh'
-  [ "$status" -eq 2 ]
+  [ "$status" -eq 0 ]
   [[ "$output" == *"gemini-summarizer"* ]]
   [[ "$output" == *"BUILD_RISK_MAP"* ]]
 }
@@ -39,11 +42,19 @@ teardown() {
   RISK_MAP="$CLAUDE_PLUGIN_DATA/risk-map-${HASH}.json"
   # First run should write the placeholder
   run bash -c 'echo "{}" | ./hooks/session-start-risk-map.sh'
-  [ "$status" -eq 2 ]
+  [ "$status" -eq 0 ]
   [ -f "$RISK_MAP" ]
   jq -e '.placeholder == true' "$RISK_MAP"
-  # Second run within TTL should skip
+  # Second run within TTL should still exit 0
   run bash -c 'echo "{}" | ./hooks/session-start-risk-map.sh'
+  [ "$status" -eq 0 ]
+}
+
+@test "session-start: does not crash when CLAUDE_PLUGIN_DATA is unset" {
+  # Regression test for the "Failed with non-blocking status code: No
+  # stderr output" error: the script must not crash with set -u when
+  # CLAUDE_PLUGIN_DATA is unset. It should fall back to ~/.claude/...
+  run bash -c 'unset CLAUDE_PLUGIN_DATA; echo "{}" | ./hooks/session-start-risk-map.sh'
   [ "$status" -eq 0 ]
 }
 
