@@ -177,7 +177,7 @@ graph LR
         PH[plan-history.jsonl]
         SS[session-state-id.json]
         LV[last-verdict-agent.txt]
-        BL[brainstorm.lock]
+        BL[brainstorm.off]
     end
 
     H1[session-start hook] --> |writes| RM
@@ -185,7 +185,7 @@ graph LR
     VH[verdict-handler] --> |appends| PH
     VH --> |writes| LV
     H5[pre-compact hook] --> |writes| SS
-    BC[brainstorm-on cmd] --> |touches| BL
+    BC[brainstorm-off cmd] --> |touches| BL
     H2[user-prompt hook] --> |reads| BL
 ```
 

@@ -86,9 +86,9 @@ The plugin ships 5 slash commands. Three invoke subagents for manual consultatio
 
 **Arguments:** none
 
-**Behavior:** Creates `brainstorm.lock` in `${CLAUDE_PLUGIN_DATA}`. While this file exists, the `UserPromptSubmit` hook fires on EVERY prompt (bypassing the keyword regex gate).
+**Behavior:** Removes `brainstorm.off` from `${CLAUDE_PLUGIN_DATA}` (the v0.2.0+ opt-out flag). With it absent, the `UserPromptSubmit` hook fires on every prompt (the default since v0.2.0). Use this only after a previous `gemini-brainstorm-off`.
 
-**Confirmation message:** "Brainstorming mode ON. Gemini will ground every prompt until you run /gemini-plugin:gemini-brainstorm-off or the session ends."
+**Confirmation message:** "Brainstorming mode ON. Gemini will now ground every prompt with live web data."
 
 ## gemini-brainstorm-off
 
@@ -100,6 +100,6 @@ The plugin ships 5 slash commands. Three invoke subagents for manual consultatio
 
 **Arguments:** none
 
-**Behavior:** Removes `brainstorm.lock` from `${CLAUDE_PLUGIN_DATA}`. The `UserPromptSubmit` hook returns to keyword-gated mode.
+**Behavior:** Creates `brainstorm.off` in `${CLAUDE_PLUGIN_DATA}`. While this file exists, the `UserPromptSubmit` hook only fires on prompts that match a narrow keyword regex (e.g. "latest version of X", "CVE-YYYY-NNN", "changelog for X"). Recommended for chatty sessions where you want to control cost.
 
-**Confirmation message:** "Brainstorming mode OFF. Gemini grounding will only fire on keyword-matching prompts."
+**Confirmation message:** "Brainstorming mode OFF. Gemini will only ground prompts that match post-cutoff keyword patterns."

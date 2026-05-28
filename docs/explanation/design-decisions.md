@@ -52,7 +52,7 @@ The grounding hook (search-grounded Gemini) only fires on prompts containing spe
 
 **Alternative considered:** never auto-fire, manual only. Loses the anti-hallucination value. Claude would confidently answer post-cutoff questions with stale training data.
 
-**The brainstorming override:** during active design sessions (brainstorm.lock exists), every prompt gets grounded. This is where false information is most costly. Outside brainstorming, the keyword gate keeps costs sane.
+**The brainstorming override (v0.1.x):** during active design sessions, users could create `brainstorm.lock` to ground every prompt. **As of v0.2.0 the default flipped:** brainstorming is on by default, and users opt out by creating `brainstorm.off` instead. This is where false information is most costly, so the new default catches more of it; cost-conscious users can opt out.
 
 ## Why four subagents instead of one?
 
