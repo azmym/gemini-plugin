@@ -11,9 +11,14 @@ ensure_data_dir
 HASH=$(repo_hash)
 RISK_MAP="${CLAUDE_PLUGIN_DATA}/risk-map-${HASH}.json"
 
-# TTL check: skip if risk map exists and is < 24h old
+# TTL check: skip if risk map exists and is < 24h old.
+# Uses `date -r FILE +%s` because it works on both BSD date (macOS) and
+# GNU date (Linux). The earlier `stat -f %m || stat -c %Y` fallback chain
+# was broken on Linux: GNU stat treats -f as "show filesystem info" and
+# silently succeeds with non-numeric output, so the fallback never fired.
 if [ -f "$RISK_MAP" ]; then
-  AGE=$(( $(date +%s) - $(stat -f %m "$RISK_MAP" 2>/dev/null || stat -c %Y "$RISK_MAP" 2>/dev/null || echo 0) ))
+  MTIME=$(date -r "$RISK_MAP" +%s 2>/dev/null || echo 0)
+  AGE=$(( $(date +%s) - MTIME ))
   if [ "$AGE" -lt 86400 ]; then
     exit 0
   fi
