@@ -11,11 +11,7 @@
 [![Marketplace: SynthForge](https://img.shields.io/badge/marketplace-SynthForge-orange)](https://github.com/azmym/SynthForge)
 [![Powered by Gemini](https://img.shields.io/badge/powered%20by-Google%20Gemini-4285F4)](https://aistudio.google.com)
 
-[Quickstart](#install) · [Why use it?](#why-use-it) · [Slash commands](#slash-commands) · [Auto-triggers](#auto-triggers) · [Documentation](#documentation)
-
-<br />
-
-<img src="assets/infographic.png" alt="gemini-plugin: validator, challenger, researcher, and summarizer subagents wired into Claude Code via 6 auto-trigger hooks" width="720" />
+[Quickstart](#install) · [Why use it?](#why-use-it) · [Architecture](#architecture-at-a-glance) · [Slash commands](#slash-commands) · [Auto-triggers](#auto-triggers) · [Documentation](#documentation)
 
 </div>
 
@@ -79,6 +75,14 @@ The plugin auto-registers the `gemini` MCP server. No separate `claude mcp add` 
 | Claude is about to compact context | Pre-compact hook | Gemini summarizes decisions and unresolved debt so the next session starts with full context |
 | Claude says it is finished | Done-claim hook | Gemini validates output against your original ask; blocks if something was missed |
 | You want a second opinion right now | Slash command | Any of the four subagents on demand, for any artifact or question |
+
+## Architecture at a glance
+
+<p align="center">
+  <img src="assets/infographic.png" alt="gemini-plugin architecture: three layers (hooks coordinate, subagents reason, MCP executes) connecting Claude Code to Gemini" width="900" />
+</p>
+
+Three layers do the work: **hooks** coordinate (read events, apply gates, emit directives), **subagents** reason (validator, challenger, researcher, summarizer with structured JSON verdicts), and the **gemini-mcp** server executes (calls Gemini, Imagen, Veo, and Lyria via Google AI Studio). For the full architecture write-up, see [docs/reference/architecture.md](docs/reference/architecture.md).
 
 ## Slash commands
 
