@@ -17,36 +17,36 @@ extract_frontmatter() {
   FM=$(extract_frontmatter "$AGENTS_DIR/gemini-validator.md")
   echo "$FM" | grep -q "^name: gemini-validator"
   echo "$FM" | grep -q "^description:"
-  echo "$FM" | grep -q "^model: haiku"
+  echo "$FM" | grep -q "^model: sonnet"
   echo "$FM" | grep -q "^color: blue"
-  echo "$FM" | grep -q "^maxTurns: 3"
+  echo "$FM" | grep -q "^maxTurns: 6"
   echo "$FM" | grep -q "mcp__gemini__gemini_generate"
 }
 
 @test "gemini-challenger has required frontmatter fields" {
   FM=$(extract_frontmatter "$AGENTS_DIR/gemini-challenger.md")
   echo "$FM" | grep -q "^name: gemini-challenger"
-  echo "$FM" | grep -q "^model: sonnet"
+  echo "$FM" | grep -q "^model: opus"
   echo "$FM" | grep -q "^color: red"
-  echo "$FM" | grep -q "^maxTurns: 4"
+  echo "$FM" | grep -q "^maxTurns: 8"
   echo "$FM" | grep -q "^effort: high"
 }
 
 @test "gemini-researcher has required frontmatter fields" {
   FM=$(extract_frontmatter "$AGENTS_DIR/gemini-researcher.md")
   echo "$FM" | grep -q "^name: gemini-researcher"
-  echo "$FM" | grep -q "^model: haiku"
+  echo "$FM" | grep -q "^model: sonnet"
   echo "$FM" | grep -q "^color: green"
-  echo "$FM" | grep -q "^maxTurns: 6"
+  echo "$FM" | grep -q "^maxTurns: 12"
   echo "$FM" | grep -q "^background: true"
 }
 
 @test "gemini-summarizer has required frontmatter fields" {
   FM=$(extract_frontmatter "$AGENTS_DIR/gemini-summarizer.md")
   echo "$FM" | grep -q "^name: gemini-summarizer"
-  echo "$FM" | grep -q "^model: sonnet"
+  echo "$FM" | grep -q "^model: opus"
   echo "$FM" | grep -q "^color: purple"
-  echo "$FM" | grep -q "^maxTurns: 2"
+  echo "$FM" | grep -q "^maxTurns: 4"
   echo "$FM" | grep -q "^memory: project"
 }
 

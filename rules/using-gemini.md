@@ -25,7 +25,7 @@ The gemini-plugin is loaded. Four subagents assist you:
 
 ### Cost discipline
 
-- Validator and researcher use haiku. Challenger and summarizer use sonnet.
+- Validator and researcher use sonnet; challenger and summarizer use opus. Per-prompt grounding now defaults on, so this is a real cost; opt out with /gemini-plugin:gemini-brainstorm-off if needed.
 - Deep research is opt-in only (via /gemini-plugin:gemini-research --deep)
 - One validation per artifact per session. No re-asking.
 - API key is configured at install time (stored in keychain). If unavailable, everything gracefully no-ops.

@@ -65,7 +65,19 @@ Each role has fundamentally different:
 
 One mega-agent would require runtime mode-switching, couldn't be independently disabled, and couldn't have different model/memory/background settings per mode.
 
-## Why Haiku for validator, Sonnet for challenger?
+## Why Sonnet for validator, Opus for challenger? (Updated v0.3.0)
+
+**v0.1.0 - v0.2.0:** validator was Haiku, challenger was Sonnet, researcher was Haiku, summarizer was Sonnet. The thinking was cost optimization for high-volume validation paths.
+
+**v0.3.0:** all four agents bumped one tier (Haiku → Sonnet, Sonnet → Opus). Reason: real-world failures where the validator subagent returned partial responses without the final JSON verdict, leaving the verdict-handler with nothing to parse. Three combining factors:
+
+1. `maxTurns: 3` was too tight for read + Gemini call + verification + JSON emit
+2. Haiku struggled with structured-output reliability on artifact validation
+3. The system prompt didn't emphasize "final turn must be JSON only"
+
+The fix doubled `maxTurns` (3→6, 4→8, 6→12, 2→4), bumped models one tier, and tightened the "final-turn-must-be-JSON" instruction. Cost per call is up roughly 4-5x but validator now actually delivers verdicts.
+
+Original cost-optimization rationale (kept for historical context):
 
 ```
 Volume x Cost matrix:

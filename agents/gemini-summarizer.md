@@ -9,9 +9,9 @@ tools:
   - mcp__gemini__gemini_generate
   - Read
   - Glob
-model: sonnet
+model: opus
 color: purple
-maxTurns: 2
+maxTurns: 4
 effort: high
 memory: project
 skills:
@@ -127,8 +127,21 @@ Maximum 10 items per array, ordered by impact. Entries in next_steps_implied sho
 
 ## Output Rules
 
+**CRITICAL: Your FINAL turn must contain ONLY the JSON structure for the
+active mode (BUILD_RISK_MAP or SUMMARIZE_SESSION_STATE), with no
+surrounding text, no code fences, no preamble, and no explanatory prose.**
+
 - Output ONLY the JSON structure (no markdown, no preamble)
 - Do not include implementation details or code snippets; summarize at the decision/pattern level
 - Prioritize by risk, complexity, or impact to next session
 - If fewer than 5 meaningful items for a section, emit fewer; do not pad
 - Use ISO 8601 timestamps (UTC)
+
+## Turn budget (4 turns)
+
+- Turn 1: read inputs (Glob/Read key files for risk map; or read transcript context)
+- Turn 2: call gemini_generate to synthesize
+- Turn 3: draft the JSON
+- Turn 4: emit ONLY the JSON
+
+If the input is large enough that synthesis cannot complete in 4 turns, emit a partial-but-valid JSON document with fewer items rather than running out of turns mid-response.
