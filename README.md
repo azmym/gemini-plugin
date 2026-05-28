@@ -1,80 +1,135 @@
 # gemini-plugin
 
-A Claude Code plugin that makes Google Gemini your second-opinion assistant: validating plans, challenging destructive operations, grounding prompts in live web data, and auditing "done" claims to reduce hallucination and repeated work.
+Give Claude Code a second opinion. Gemini validates your plans, challenges destructive commands, grounds answers in live web data, and audits "done" claims before Claude stops working.
 
-Built on [gemini-mcp](https://github.com/azmym/gemini-mcp) (13 MCP tools covering text, images, video, music, TTS, deep research, code execution, and search-grounded answers).
+## Why use it?
+
+- **Catch mistakes before they ship.** Every plan Claude produces is reviewed by Gemini for gaps and hallucinations before you see it.
+- **Stop dangerous commands before they run.** When Claude is about to execute `rm -rf`, a force-push, or a `DROP TABLE`, Gemini proposes safer alternatives and can block execution until you decide.
+- **Get answers grounded in today's web.** Questions about library versions, recent CVEs, or live API docs are automatically answered with citations, not training-data guesses.
+- **Keep context alive across compaction.** Before Claude compacts its context, Gemini summarizes decisions, discarded alternatives, and unresolved debt so the next session picks up cleanly.
+- **Verify "done" claims.** When Claude says it's finished, Gemini checks the actual output against your original ask and blocks the stop if something was missed.
+
+## At a glance
+
+You ask Claude to delete a branch that was never merged. Instead of running the command immediately, the plugin intercepts it:
+
+```
+⚡ gemini-challenger (destructive command detected)
+
+Verdict: block
+
+Alternatives:
+  1. Archive the branch instead of deleting it
+     git tag archive/<branch-name> <branch-name> && git branch -d <branch-name>
+     Tradeoff: takes one extra step, but the ref is recoverable
+  2. Create a backup tag first, then delete
+     git tag backup/<branch-name> && git branch -D <branch-name>
+     Tradeoff: slightly more history noise
+
+Objections:
+  - Branch has unmerged commits (checked with git branch --no-merged)
+
+Must address:
+  - Confirm: do you have a remote copy of this branch?
+```
+
+Claude pauses and shows you the critique inline. You respond, and the session continues from there.
 
 ## Install
 
 Distributed via the [SynthForge marketplace](https://github.com/azmym/SynthForge):
 
-```bash
+```
 /plugin marketplace add azmym/SynthForge
 /plugin install gemini-plugin@synthforge
 ```
 
-During installation, Claude Code prompts you for your Google AI Studio API key. The key is stored securely in your system keychain (not in plain text). Get a key at [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey).
+You will be prompted for your Google AI Studio API key during installation. The key is stored securely in your system keychain (not in any settings file). Get one free at [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey).
 
-The plugin auto-registers the `gemini` MCP server. No separate `claude mcp add` or `export` step needed.
+The plugin auto-registers the `gemini` MCP server. No separate `claude mcp add` step is needed.
 
-## What you get
+## What it does for you
 
-| Component | Count | Purpose |
+| Situation | What fires | What you get |
 |---|---|---|
-| Skills | 8 | Task-oriented guidance for when/how to use Gemini capabilities |
-| Subagents | 4 | Validator, Challenger, Researcher, Summarizer |
-| Slash commands | 5 | Manual invocation + brainstorm toggle |
-| Hooks | 7 | 6 auto-triggers + 1 verdict handler |
-| Rules | 1 | Session-level guidance on when to (not) call Gemini |
-
-## Auto-triggers (hooks)
-
-| Event | What happens |
-|---|---|
-| Session start | Builds a risk map of the repo (cached 24h) |
-| User prompt (gated) | Grounds post-cutoff questions via Gemini search (always-on during brainstorming) |
-| Plan complete | Validates the plan for gaps and hallucinations |
-| Destructive Bash command | Challenges the command; proposes safer alternatives |
-| Pre-compact | Summarizes session state to survive context compaction |
-| Stop ("done" claim) | Validates the output against the original ask |
-
-All hooks block (exit 2) when Gemini finds issues. You see the critique inline and must address it before continuing.
-
-## Subagents
-
-| Agent | Role | Model | Color |
-|---|---|---|---|
-| gemini-validator | Validates plans/diffs/claims | Haiku | Blue |
-| gemini-challenger | Devil's advocate | Sonnet | Red |
-| gemini-researcher | Live-web grounding | Haiku | Green |
-| gemini-summarizer | Session compression | Sonnet | Purple |
-
-Invoke manually: `@agent-gemini-plugin:gemini-validator`, or via slash commands.
+| You start a session on a new repo | Risk map hook | Gemini scans for fragile zones, missing tests, and risky integrations (cached 24 h) |
+| Claude finishes a plan | Plan validation hook | Gemini reviews the plan; blocks if gaps or missed acceptance criteria are found |
+| Claude is about to run a destructive command | Destructive command hook | Gemini proposes alternatives; can block execution if a safer path exists |
+| You ask about a library version, CVE, or live API | Prompt grounding hook | Gemini searches the web and injects citations before Claude answers |
+| Claude is about to compact context | Pre-compact hook | Gemini summarizes decisions and unresolved debt so the next session starts with full context |
+| Claude says it is finished | Done-claim hook | Gemini validates output against your original ask; blocks if something was missed |
+| You want a second opinion right now | Slash command | Any of the four subagents on demand, for any artifact or question |
 
 ## Slash commands
 
 | Command | What it does |
 |---|---|
-| `/gemini-plugin:gemini-validate <subject>` | Ad-hoc validation of any artifact |
-| `/gemini-plugin:gemini-challenge <topic>` | Devil's advocate on any decision |
-| `/gemini-plugin:gemini-research <query> [--deep]` | Grounded research (--deep for synthesis) |
-| `/gemini-plugin:gemini-brainstorm-on` | Enable unconditional grounding |
+| `/gemini-plugin:gemini-validate <subject>` | Ask Gemini to check a file, plan, or claim for gaps and hallucinations |
+| `/gemini-plugin:gemini-challenge <topic>` | Get at least two alternatives and a list of objections to any decision |
+| `/gemini-plugin:gemini-research <query>` | Quick web search with citations (add `--deep` for multi-source synthesis) |
+| `/gemini-plugin:gemini-brainstorm-on` | Ground every prompt in live web data until you turn it off |
 | `/gemini-plugin:gemini-brainstorm-off` | Return to keyword-gated grounding |
 
-## Disable features
+## Auto-triggers
 
-| What | How |
-|---|---|
-| All hooks | `export CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1` |
-| Specific agent | Add `Agent(gemini-plugin:gemini-challenger)` to `permissions.deny` in settings |
-| Brainstorm mode | `/gemini-plugin:gemini-brainstorm-off` |
+These fire without any action on your part:
+
+| Trigger | When | What you see |
+|---|---|---|
+| Session start | Once per project per day | A risk map of high-fragility zones in your repo |
+| Prompt grounding | On prompts containing version, API, CVE, library, or similar keywords (or always, in brainstorm mode) | Citations prepended to Claude's answer |
+| Plan validation | When Claude exits plan mode | A pass or a list of gaps to address before proceeding |
+| Destructive command | Before `rm -rf`, `--force` pushes, `DROP TABLE`, and similar | Alternatives and a block if a safer path exists |
+| Pre-compact | Before context compaction | A structured summary of decisions and open work |
+| Done-claim check | When Claude signals it has finished | A pass or a list of missed requirements |
+
+## Configuration and disable knobs
+
+**Turn off all hooks:**
+
+```bash
+export CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1
+```
+
+**Disable one specific agent** (for example, if you want validation but not the challenger):
+
+Add the agent to `permissions.deny` in your Claude Code settings:
+
+```json
+"permissions": {
+  "deny": ["Agent(gemini-plugin:gemini-challenger)"]
+}
+```
+
+**Turn brainstorm mode on or off:**
+
+```
+/gemini-plugin:gemini-brainstorm-on
+/gemini-plugin:gemini-brainstorm-off
+```
+
+Brainstorm mode grounds every prompt in live web data, not just keyword-matching ones. Useful for design sessions; turn it off when you want less interruption.
 
 ## Requirements
 
 - Claude Code with plugin support
 - A Google AI Studio API key (prompted during install, stored in system keychain)
-- `uvx` (installed with `uv`; the MCP server is fetched automatically)
-- `jq` (used by hook scripts to parse JSON)
+- `uv` (provides `uvx` for running the MCP server; install at [docs.astral.sh/uv](https://docs.astral.sh/uv))
+- `jq` (used by hook scripts; install with `brew install jq` on macOS)
+
+## Documentation
+
+Full documentation is in the [`docs/`](docs/index.md) folder:
+
+| Section | What you will find |
+|---|---|
+| [Tutorial](docs/tutorial.md) | Install the plugin and run your first validation in under 5 minutes |
+| [Validate plans and claims](docs/how-to/validate-plans.md) | Detailed usage patterns for plan and done-claim validation |
+| [Research live data](docs/how-to/research-live-data.md) | Ground questions in current web data with citations |
+| [Configure hooks](docs/how-to/configure-hooks.md) | Enable, disable, or customize the automatic triggers |
+| [Reference](docs/index.md) | Architecture, skills, subagents, hooks, and commands in full detail |
+| [Design decisions](docs/explanation/design-decisions.md) | Why single-turn validation, why these gates, cost tradeoffs |
 
 ## License
 
