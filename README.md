@@ -6,18 +6,11 @@ Built on [gemini-mcp](https://github.com/azmym/gemini-mcp) (13 MCP tools coverin
 
 ## Install
 
-Recommended (via the SynthForge marketplace, which aggregates this and other plugins):
+Distributed via the [SynthForge marketplace](https://github.com/azmym/SynthForge):
 
 ```bash
 /plugin marketplace add azmym/SynthForge
 /plugin install gemini-plugin@synthforge
-```
-
-Or install this plugin directly without going through SynthForge:
-
-```bash
-/plugin marketplace add azmym/gemini-plugin
-/plugin install gemini-plugin@gemini-marketplace
 ```
 
 During installation, Claude Code prompts you for your Google AI Studio API key. The key is stored securely in your system keychain (not in plain text). Get a key at [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey).

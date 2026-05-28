@@ -18,13 +18,6 @@ Open Claude Code and add the SynthForge marketplace, then install the plugin:
 /plugin install gemini-plugin@synthforge
 ```
 
-Alternative (direct install without going through SynthForge):
-
-```
-/plugin marketplace add azmym/gemini-plugin
-/plugin install gemini-plugin@gemini-marketplace
-```
-
 ## Step 2: Enter your API key
 
 During installation, Claude Code prompts you for your Google AI Studio API key:

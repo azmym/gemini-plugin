@@ -10,24 +10,16 @@
   jq -e '.mcpServers.gemini' .claude-plugin/plugin.json
 }
 
-@test "marketplace.json is valid JSON" {
-  jq empty .claude-plugin/marketplace.json
-}
-
-@test "marketplace.json has required fields" {
-  jq -e '.name' .claude-plugin/marketplace.json
-  jq -e '.owner.name' .claude-plugin/marketplace.json
-  jq -e '.plugins[0].name' .claude-plugin/marketplace.json
-  jq -e '.plugins[0].source' .claude-plugin/marketplace.json
-}
-
-@test "plugin name matches between manifest and marketplace" {
-  PLUGIN_NAME=$(jq -r '.name' .claude-plugin/plugin.json)
-  MARKETPLACE_NAME=$(jq -r '.plugins[0].name' .claude-plugin/marketplace.json)
-  [ "$PLUGIN_NAME" = "$MARKETPLACE_NAME" ]
+@test "plugin.json declares userConfig for API key" {
+  jq -e '.userConfig.gemini_api_key.sensitive' .claude-plugin/plugin.json
+  jq -e '.userConfig.gemini_api_key.required' .claude-plugin/plugin.json
 }
 
 @test "version follows semver" {
   VERSION=$(jq -r '.version' .claude-plugin/plugin.json)
   [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+}
+
+@test "marketplace.json is not present (distributed via SynthForge)" {
+  [ ! -f .claude-plugin/marketplace.json ]
 }
