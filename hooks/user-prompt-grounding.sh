@@ -37,7 +37,9 @@ fi
 #    "X version", "version of X", "latest X", "CVE-..", or "X release"
 #    where X is a library/framework/SDK name.
 if ! is_brainstorming; then
-  if ! echo "$USER_PROMPT" | grep -qiE '\b(latest|newest|current|recent)\s+(version|release|stable)\b|\bversion\s+of\b|\bCVE-\d{4}-\d+\b|\bsemver\b|\bchangelog\s+for\b|\bdeprecated\s+in\b|\bbreaking\s+change\s+in\b|\bsecurity\s+advisory\b'; then
+  # POSIX ERE only (no \d); GNU grep -E on Linux does not accept Perl
+  # shorthand classes. Use [0-9] for digits and [[:space:]] for whitespace.
+  if ! echo "$USER_PROMPT" | grep -qiE '\b(latest|newest|current|recent)[[:space:]]+(version|release|stable)\b|\bversion[[:space:]]+of\b|\bCVE-[0-9]{4}-[0-9]+\b|\bsemver\b|\bchangelog[[:space:]]+for\b|\bdeprecated[[:space:]]+in\b|\bbreaking[[:space:]]+change[[:space:]]+in\b|\bsecurity[[:space:]]+advisory\b'; then
     exit 0
   fi
 fi
