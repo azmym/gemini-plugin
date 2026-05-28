@@ -1,19 +1,21 @@
 <div align="center">
 
-<img src="assets/infographic.png" alt="gemini-plugin: validator, challenger, researcher, and summarizer subagents wired into Claude Code via 6 auto-trigger hooks" width="900" />
-
 # gemini-plugin
 
 **Give Claude Code a second opinion.** Gemini validates your plans, challenges destructive commands, grounds answers in live web data, and audits "done" claims before Claude stops working.
 
 [![Version](https://img.shields.io/github/v/release/azmym/gemini-plugin?label=version&color=blue)](https://github.com/azmym/gemini-plugin/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-69%20passing-brightgreen)](tests/)
+[![Tests](https://github.com/azmym/gemini-plugin/actions/workflows/tests.yml/badge.svg)](https://github.com/azmym/gemini-plugin/actions/workflows/tests.yml)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-7C3AED)](https://code.claude.com/docs/en/plugins)
 [![Marketplace: SynthForge](https://img.shields.io/badge/marketplace-SynthForge-orange)](https://github.com/azmym/SynthForge)
 [![Powered by Gemini](https://img.shields.io/badge/powered%20by-Google%20Gemini-4285F4)](https://aistudio.google.com)
 
 [Quickstart](#install) · [Why use it?](#why-use-it) · [Slash commands](#slash-commands) · [Auto-triggers](#auto-triggers) · [Documentation](#documentation)
+
+<br />
+
+<img src="assets/infographic.png" alt="gemini-plugin: validator, challenger, researcher, and summarizer subagents wired into Claude Code via 6 auto-trigger hooks" width="720" />
 
 </div>
 
