@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
+# Stop hook: when Claude claims completion, ask it to spawn
+# gemini-validator to audit the output against the original ask.
+#
+# Pattern: exit 0 + JSON with `decision: block` + `reason` +
+# `hookSpecificOutput.additionalContext`. The block prevents Claude
+# from stopping until the validator's verdict comes back; the
+# additionalContext gives Claude the directive to spawn the
+# validator; the reason explains to the user what's happening.
 set -euo pipefail
+trap 'echo "[gemini-plugin] stop-done-claim crashed at line ${LINENO} (last command: ${BASH_COMMAND})" >&2; exit 0' ERR
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/common.sh"
 source "${SCRIPT_DIR}/lib/prompt-builder.sh"
@@ -25,5 +35,14 @@ fi
 
 DIFF_SUMMARY=$(git diff --stat HEAD~1 2>/dev/null | tail -20 || echo "(no git diff available)")
 DIRECTIVE=$(build_done_claim_directive "$ORIGINAL_ASK" "$ASSISTANT_MESSAGE" "$DIFF_SUMMARY")
-echo "$DIRECTIVE" >&2
-exit 2
+REASON="gemini-plugin: validating done-claim against the original ask before stopping. @agent-gemini-plugin:gemini-validator will return a structured verdict."
+
+jq -n --arg ctx "$DIRECTIVE" --arg reason "$REASON" '{
+  decision: "block",
+  reason: $reason,
+  hookSpecificOutput: {
+    hookEventName: "Stop",
+    additionalContext: $ctx
+  }
+}'
+exit 0

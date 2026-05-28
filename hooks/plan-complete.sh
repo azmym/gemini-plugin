@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
+# PreToolUse(ExitPlanMode) hook: when Claude exits plan mode, ask it
+# to spawn gemini-validator to review the plan for gaps and
+# hallucinations before the user sees it.
+#
+# Pattern: exit 0 + JSON with hookSpecificOutput.additionalContext.
+# We do NOT deny the ExitPlanMode tool call (the plan should still
+# reach the user); we just inject the directive so Claude spawns the
+# validator alongside.
 set -euo pipefail
+trap 'echo "[gemini-plugin] plan-complete crashed at line ${LINENO} (last command: ${BASH_COMMAND})" >&2; exit 0' ERR
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/common.sh"
 source "${SCRIPT_DIR}/lib/prompt-builder.sh"
@@ -19,5 +29,11 @@ fi
 
 HISTORY=$(get_plan_history "VALIDATE_PLAN" 3)
 DIRECTIVE=$(build_plan_validation_directive "$PLAN_TEXT" "$HISTORY")
-echo "$DIRECTIVE" >&2
-exit 2
+
+jq -n --arg ctx "$DIRECTIVE" '{
+  hookSpecificOutput: {
+    hookEventName: "PreToolUse",
+    additionalContext: $ctx
+  }
+}'
+exit 0
