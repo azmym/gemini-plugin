@@ -19,15 +19,15 @@ Use this skill to generate images via Gemini's native image generation capabilit
 
 | Tool | Purpose |
 |---|---|
-| `mcp__gemini__gemini_generate_image` | Gemini native image generation (Nano Banana model, fast, conversational quality) |
-| `mcp__gemini__gemini_generate_image_imagen` | Imagen 4 (higher fidelity, better photorealism and typography, slightly slower) |
+| `gemini_generate_image` | Gemini native image generation (Nano Banana model, fast, conversational quality) |
+| `gemini_generate_image_imagen` | Imagen 4 (higher fidelity, better photorealism and typography, slightly slower) |
 
 ## Choosing between the two tools
 
 | Need | Tool |
 |---|---|
-| Quick prototyping, iterative concepts, low cost | `mcp__gemini__gemini_generate_image` |
-| High-fidelity output, photorealistic, sharp text in image | `mcp__gemini__gemini_generate_image_imagen` |
+| Quick prototyping, iterative concepts, low cost | `gemini_generate_image` |
+| High-fidelity output, photorealistic, sharp text in image | `gemini_generate_image_imagen` |
 
 ## Usage pattern
 
@@ -35,7 +35,7 @@ Use this skill to generate images via Gemini's native image generation capabilit
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_generate_image",
+  "tool": "gemini_generate_image",
   "arguments": {
     "prompt": "A minimal dashboard UI showing a line chart, three KPI cards, and a sidebar navigation. Clean, modern, dark mode, flat design.",
     "aspect_ratio": "16:9"
@@ -47,7 +47,7 @@ Use this skill to generate images via Gemini's native image generation capabilit
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_generate_image_imagen",
+  "tool": "gemini_generate_image_imagen",
   "arguments": {
     "prompt": "A sleek mobile app screenshot showing a fitness tracking screen with a circular progress ring, step count, and heart rate graph. iOS-style, white background, soft shadows.",
     "aspect_ratio": "9:16",

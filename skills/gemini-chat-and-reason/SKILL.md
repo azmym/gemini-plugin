@@ -18,8 +18,8 @@ Use this skill when you want Gemini to serve as a reasoning partner: reviewing c
 
 | Tool | Purpose |
 |---|---|
-| `mcp__gemini__gemini_generate` | Single-shot text generation, best for one-off questions or reviews |
-| `mcp__gemini__gemini_chat` | Multi-turn conversation, best for iterative critique or dialogue |
+| `gemini_generate` | Single-shot text generation, best for one-off questions or reviews |
+| `gemini_chat` | Multi-turn conversation, best for iterative critique or dialogue |
 
 ## Model selection guidance
 
@@ -29,11 +29,11 @@ Use this skill when you want Gemini to serve as a reasoning partner: reviewing c
 
 ## Usage pattern
 
-### Single-shot review with `mcp__gemini__gemini_generate`
+### Single-shot review with `gemini_generate`
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_generate",
+  "tool": "gemini_generate",
   "arguments": {
     "prompt": "Review the following Go function for correctness, error handling, and idiomatic style:\n\n```go\n<paste code here>\n```",
     "model": "gemini-2.5-flash"
@@ -41,13 +41,13 @@ Use this skill when you want Gemini to serve as a reasoning partner: reviewing c
 }
 ```
 
-### Multi-turn design critique with `mcp__gemini__gemini_chat`
+### Multi-turn design critique with `gemini_chat`
 
 Start a session, then send follow-up messages in the same `session_id`:
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_chat",
+  "tool": "gemini_chat",
   "arguments": {
     "message": "I am designing a REST API for a payment service. Here is the proposed endpoint structure: <details>. What are the biggest risks?",
     "session_id": "payment-api-review"
@@ -59,7 +59,7 @@ Follow-up turn:
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_chat",
+  "tool": "gemini_chat",
   "arguments": {
     "message": "Good points. If we add idempotency keys, does that address the double-charge risk?",
     "session_id": "payment-api-review"

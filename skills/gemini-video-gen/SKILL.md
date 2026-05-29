@@ -18,16 +18,16 @@ Use this skill to generate short video clips powered by Google Veo 3.1. Video ge
 
 | Tool | Purpose |
 |---|---|
-| `mcp__gemini__gemini_start_video` | Submit a video generation request; returns a job ID |
-| `mcp__gemini__gemini_get_video` | Poll for job status and retrieve the completed MP4 when done |
+| `gemini_start_video` | Submit a video generation request; returns a job ID |
+| `gemini_get_video` | Poll for job status and retrieve the completed MP4 when done |
 
 ## Async start+poll pattern
 
 Video generation with Veo 3.1 is not instant. The typical workflow is:
 
-1. Call `mcp__gemini__gemini_start_video` with a prompt. Receive a `job_id`.
+1. Call `gemini_start_video` with a prompt. Receive a `job_id`.
 2. Wait a few seconds (Veo 3.1 typically takes 20-90 seconds for short clips).
-3. Call `mcp__gemini__gemini_get_video` with the `job_id`. If status is `processing`, wait and retry. If status is `done`, retrieve the output file path.
+3. Call `gemini_get_video` with the `job_id`. If status is `processing`, wait and retry. If status is `done`, retrieve the output file path.
 
 Do NOT spin-poll aggressively. Wait at least 10 seconds between poll attempts.
 
@@ -37,7 +37,7 @@ Do NOT spin-poll aggressively. Wait at least 10 seconds between poll attempts.
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_start_video",
+  "tool": "gemini_start_video",
   "arguments": {
     "prompt": "A mobile phone screen showing a recipe app. The user scrolls through a list of recipes, taps on 'Spaghetti Bolognese', and the detail screen slides in smoothly. Clean, modern UI, soft lighting.",
     "duration_seconds": 5,
@@ -52,7 +52,7 @@ Response example: `{ "job_id": "veo-abc123", "status": "processing" }`
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_get_video",
+  "tool": "gemini_get_video",
   "arguments": {
     "job_id": "veo-abc123"
   }

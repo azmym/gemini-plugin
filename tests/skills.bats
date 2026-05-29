@@ -37,14 +37,14 @@ EXPECTED_SKILLS=(
   grep -q "Master router" "$SKILLS_DIR/gemini-when-to-use/SKILL.md"
 }
 
-@test "capability skills reference specific MCP tools" {
-  grep -q "mcp__gemini__gemini_generate" "$SKILLS_DIR/gemini-chat-and-reason/SKILL.md"
-  grep -q "mcp__gemini__gemini_search_grounded" "$SKILLS_DIR/gemini-research-grounded/SKILL.md"
-  grep -q "mcp__gemini__gemini_analyze_file" "$SKILLS_DIR/gemini-file-analysis/SKILL.md"
-  grep -q "mcp__gemini__gemini_code_execute" "$SKILLS_DIR/gemini-code-exec/SKILL.md"
-  grep -q "mcp__gemini__gemini_generate_image" "$SKILLS_DIR/gemini-image-gen/SKILL.md"
-  grep -q "mcp__gemini__gemini_start_video" "$SKILLS_DIR/gemini-video-gen/SKILL.md"
-  grep -q "mcp__gemini__gemini_generate_music" "$SKILLS_DIR/gemini-audio-tts-music/SKILL.md"
+@test "capability skills reference specific MCP tools (by short name)" {
+  grep -q "gemini_generate" "$SKILLS_DIR/gemini-chat-and-reason/SKILL.md"
+  grep -q "gemini_search_grounded" "$SKILLS_DIR/gemini-research-grounded/SKILL.md"
+  grep -q "gemini_analyze_file" "$SKILLS_DIR/gemini-file-analysis/SKILL.md"
+  grep -q "gemini_code_execute" "$SKILLS_DIR/gemini-code-exec/SKILL.md"
+  grep -q "gemini_generate_image" "$SKILLS_DIR/gemini-image-gen/SKILL.md"
+  grep -q "gemini_start_video" "$SKILLS_DIR/gemini-video-gen/SKILL.md"
+  grep -q "gemini_generate_music" "$SKILLS_DIR/gemini-audio-tts-music/SKILL.md"
 }
 
 @test "no skill has disallowed frontmatter fields for plugin skills" {

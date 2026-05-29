@@ -19,7 +19,7 @@ Use this skill to run Python code inside Gemini's isolated sandbox. This gives y
 
 | Tool | Purpose |
 |---|---|
-| `mcp__gemini__gemini_code_execute` | Submit Python code for execution in Gemini's sandbox and receive stdout, stderr, and the return value |
+| `gemini_code_execute` | Submit Python code for execution in Gemini's sandbox and receive stdout, stderr, and the return value |
 
 ## Usage pattern
 
@@ -27,7 +27,7 @@ Use this skill to run Python code inside Gemini's isolated sandbox. This gives y
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_code_execute",
+  "tool": "gemini_code_execute",
   "arguments": {
     "code": "import math\n\ndef compound_interest(principal, rate, periods):\n    return principal * (1 + rate) ** periods\n\nresult = compound_interest(1000, 0.05, 10)\nprint(f'After 10 years: {result:.2f}')"
   }
@@ -38,7 +38,7 @@ Use this skill to run Python code inside Gemini's isolated sandbox. This gives y
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_code_execute",
+  "tool": "gemini_code_execute",
   "arguments": {
     "code": "import re\n\npattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'\ntest_cases = ['user@example.com', 'bad-email', 'user@.com', 'a@b.co']\nfor case in test_cases:\n    match = bool(re.match(pattern, case))\n    print(f'{case!r}: {match}')"
   }
@@ -49,7 +49,7 @@ Use this skill to run Python code inside Gemini's isolated sandbox. This gives y
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_code_execute",
+  "tool": "gemini_code_execute",
   "arguments": {
     "code": "def longest_common_subsequence(s1, s2):\n    m, n = len(s1), len(s2)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if s1[i-1] == s2[j-1]:\n                dp[i][j] = dp[i-1][j-1] + 1\n            else:\n                dp[i][j] = max(dp[i-1][j], dp[i][j-1])\n    return dp[m][n]\n\nprint(longest_common_subsequence('ABCBDAB', 'BDCAB'))  # Expected: 4"
   }

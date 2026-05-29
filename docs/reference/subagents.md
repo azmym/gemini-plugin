@@ -12,6 +12,8 @@ The plugin ships 5 specialized subagents. Each has a focused role, restricted to
 | gemini-summarizer | opus | high | 4 | project | purple | false |
 | gemini-reviewer | sonnet | medium | 10 | (none) | cyan | false |
 
+Subagents do not declare a `tools:` allowlist; they inherit the session's tools, including the Gemini MCP tools, under whatever namespace the install registers (the manual-install namespace or the plugin-install namespace). If no Gemini tool is present, each agent fails loud (verdict `unknown` or, for the researcher, confidence `unavailable`) with an `error` field, rather than answering from training data.
+
 All subagents preload the `gemini-when-to-use` skill via the `skills:` frontmatter field.
 
 ## gemini-validator
@@ -19,8 +21,8 @@ All subagents preload the `gemini-when-to-use` skill via the `skills:` frontmatt
 **Role:** Validates plans, diffs, and "done" claims against the original ask. Flags gaps, hallucinations, and missed acceptance criteria.
 
 **Tools:**
-- `mcp__gemini__gemini_generate`
-- `mcp__gemini__gemini_search_grounded`
+- `gemini_generate`
+- `gemini_search_grounded`
 - Read, Grep, Glob
 
 **Output schema:**
@@ -46,8 +48,8 @@ All subagents preload the `gemini-when-to-use` skill via the `skills:` frontmatt
 **Role:** Devil's advocate. Argues at least 2 alternative approaches and 1 reason the current path is wrong.
 
 **Tools:**
-- `mcp__gemini__gemini_generate`
-- `mcp__gemini__gemini_chat`
+- `gemini_generate`
+- `gemini_chat`
 - Read
 
 **Output schema:**
@@ -77,9 +79,9 @@ All subagents preload the `gemini-when-to-use` skill via the `skills:` frontmatt
 **Role:** Fact-finding with citations. Never asserts a fact without a URL source.
 
 **Tools:**
-- `mcp__gemini__gemini_search_grounded`
-- `mcp__gemini__gemini_start_research`
-- `mcp__gemini__gemini_get_research_report`
+- `gemini_search_grounded`
+- `gemini_start_research`
+- `gemini_get_research_report`
 - Read
 
 **Output schema:**
@@ -112,7 +114,7 @@ All subagents preload the `gemini-when-to-use` skill via the `skills:` frontmatt
 **Role:** Compresses session state and writes risk maps. Two task modes.
 
 **Tools:**
-- `mcp__gemini__gemini_generate`
+- `gemini_generate`
 - Read, Glob
 
 **Task: BUILD_RISK_MAP**
@@ -159,8 +161,8 @@ Output schema:
 **Role:** Generalist third-reviewer for diffs/PRs: security, threading correctness, library/version drift, doc accuracy, dead code, complexity. Covers concerns the other four agents do not own.
 
 **Tools:**
-- `mcp__gemini__gemini_chat`
-- `mcp__gemini__gemini_search_grounded`
+- `gemini_chat`
+- `gemini_search_grounded`
 - Read, Grep, Glob, Bash
 
 **Output schema:**

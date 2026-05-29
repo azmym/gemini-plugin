@@ -20,16 +20,16 @@ Use this skill whenever the answer depends on information that may have changed 
 
 | Tool | Purpose |
 |---|---|
-| `mcp__gemini__gemini_search_grounded` | Fast, single-shot search-grounded answer with citations |
-| `mcp__gemini__gemini_start_research` | Kick off an async deep research job (returns a job ID) |
-| `mcp__gemini__gemini_get_research_report` | Poll for and retrieve the completed deep research report |
+| `gemini_search_grounded` | Fast, single-shot search-grounded answer with citations |
+| `gemini_start_research` | Kick off an async deep research job (returns a job ID) |
+| `gemini_get_research_report` | Poll for and retrieve the completed deep research report |
 
 ## Choosing between fast search and deep research
 
 | Scenario | Tool |
 |---|---|
-| A single fact, version, or advisory | `mcp__gemini__gemini_search_grounded` |
-| A broad technical survey or multi-source synthesis | `mcp__gemini__gemini_start_research` + `mcp__gemini__gemini_get_research_report` |
+| A single fact, version, or advisory | `gemini_search_grounded` |
+| A broad technical survey or multi-source synthesis | `gemini_start_research` + `gemini_get_research_report` |
 
 Deep research is asynchronous and may take 30-120 seconds. Use it only when breadth and synthesis matter more than speed.
 
@@ -39,7 +39,7 @@ Deep research is asynchronous and may take 30-120 seconds. Use it only when brea
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_search_grounded",
+  "tool": "gemini_search_grounded",
   "arguments": {
     "query": "Latest stable release of Kubernetes and its release date",
     "model": "gemini-2.5-flash"
@@ -55,7 +55,7 @@ Step 1: start the job.
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_start_research",
+  "tool": "gemini_start_research",
   "arguments": {
     "topic": "Best practices for zero-downtime database migrations in PostgreSQL 16",
     "depth": "comprehensive"
@@ -67,7 +67,7 @@ Step 2: retrieve the report once the job is complete (poll until status is `done
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_get_research_report",
+  "tool": "gemini_get_research_report",
   "arguments": {
     "job_id": "<job_id from step 1>"
   }
