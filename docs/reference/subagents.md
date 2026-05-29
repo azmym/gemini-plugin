@@ -1,6 +1,6 @@
 # Subagents Reference
 
-The plugin ships 4 specialized subagents. Each has a focused role, restricted tools, and a structured JSON output schema. They are spawned by Claude via the Agent tool (triggered by hooks or slash commands).
+The plugin ships 5 specialized subagents. Each has a focused role, restricted tools, and a structured JSON output schema. They are spawned by Claude via the Agent tool (triggered by hooks or slash commands).
 
 ## Subagent summary
 
@@ -10,6 +10,7 @@ The plugin ships 4 specialized subagents. Each has a focused role, restricted to
 | gemini-challenger | opus | high | 8 | (none) | red | false |
 | gemini-researcher | sonnet | medium | 12 | (none) | green | true |
 | gemini-summarizer | opus | high | 4 | project | purple | false |
+| gemini-reviewer | sonnet | medium | 10 | (none) | cyan | false |
 
 All subagents preload the `gemini-when-to-use` skill via the `skills:` frontmatter field.
 
@@ -152,6 +153,31 @@ Output schema:
 - `PreCompact` hook (SUMMARIZE_SESSION_STATE)
 
 **Memory:** project-scoped. Accumulates knowledge about the codebase across sessions.
+
+## gemini-reviewer
+
+**Role:** Generalist third-reviewer for diffs/PRs: security, threading correctness, library/version drift, doc accuracy, dead code, complexity. Covers concerns the other four agents do not own.
+
+**Tools:**
+- `mcp__gemini__gemini_chat`
+- `mcp__gemini__gemini_search_grounded`
+- Read, Grep, Glob, Bash
+
+**Output schema:**
+
+```json
+{
+  "verdict": "approved | changes_requested | unknown",
+  "strengths": ["what the change does well"],
+  "issues": {"critical": [], "important": [], "minor": []},
+  "next_actions": ["concrete fixes with file:line where possible"]
+}
+```
+
+**Triggered by:**
+- the `/gemini-plugin:gemini-consult` dispatch rule (manual). Not wired to any trigger hook.
+
+**Advisory note:** `changes_requested` surfaces inline but does not block (the verdict handler only blocks on fail/block).
 
 ## Plugin subagent constraints
 
