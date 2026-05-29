@@ -76,7 +76,8 @@ The plugin auto-registers the `gemini` MCP server. No separate `claude mcp add` 
 | You ask about a library version, CVE, or live API | Prompt grounding hook | Gemini searches the web and injects citations before Claude answers |
 | Claude is about to compact context | Pre-compact hook | Gemini summarizes decisions and unresolved debt so the next session starts with full context |
 | Claude says it is finished | Done-claim hook | Gemini validates output against your original ask; blocks if something was missed |
-| You want a second opinion right now | Slash command | Any of the four subagents on demand, for any artifact or question |
+| You want a second opinion right now | Slash command or consult rule | Any of the five subagents on demand, for any artifact or question |
+| You are finalizing a diff or PR | gemini-reviewer (manual consult) | A generalist review for security, threading, version drift, docs, dead code, and complexity |
 
 ## Architecture at a glance
 
@@ -84,7 +85,7 @@ The plugin auto-registers the `gemini` MCP server. No separate `claude mcp add` 
   <img src="assets/infographic.png" alt="gemini-plugin architecture: three layers (hooks coordinate, subagents reason, MCP executes) connecting Claude Code to Gemini" width="900" />
 </p>
 
-Three layers do the work: **hooks** coordinate (read events, apply gates, emit directives), **subagents** reason (validator, challenger, researcher, summarizer with structured JSON verdicts), and the **gemini-mcp** server executes (calls Gemini, Imagen, Veo, and Lyria via Google AI Studio). For the full architecture write-up, see [docs/reference/architecture.md](docs/reference/architecture.md).
+Three layers do the work: **hooks** coordinate (read events, apply gates, emit directives), **subagents** reason (validator, challenger, researcher, summarizer, and reviewer with structured JSON verdicts), and the **gemini-mcp** server executes (calls Gemini, Imagen, Veo, and Lyria via Google AI Studio). For the full architecture write-up, see [docs/reference/architecture.md](docs/reference/architecture.md).
 
 ## Slash commands
 
