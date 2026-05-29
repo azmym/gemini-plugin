@@ -4,6 +4,7 @@ SKILLS_DIR="skills"
 
 EXPECTED_SKILLS=(
   "gemini-when-to-use"
+  "gemini-consult"
   "gemini-chat-and-reason"
   "gemini-research-grounded"
   "gemini-file-analysis"
@@ -13,7 +14,7 @@ EXPECTED_SKILLS=(
   "gemini-audio-tts-music"
 )
 
-@test "all 8 skill directories exist with SKILL.md" {
+@test "all 9 skill directories exist with SKILL.md" {
   for skill in "${EXPECTED_SKILLS[@]}"; do
     [ -f "$SKILLS_DIR/$skill/SKILL.md" ]
   done
