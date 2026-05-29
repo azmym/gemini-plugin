@@ -26,10 +26,25 @@ The `main` branch is protected; all changes go through pull requests.
 
 1. **Fork and branch.** Create a feature branch from `main`: `git checkout -b feat/<topic>` or `fix/<topic>`.
 2. **Make your change.** Keep PRs focused on one concern. If you're touching hook scripts, follow the existing `set -euo pipefail` and library-sourcing pattern.
-3. **Run the tests.** `bats tests/` from the repo root. All 69 tests must pass. Add tests for any new behavior.
+3. **Run the tests.** `bats tests/` from the repo root. All tests must pass. Add tests for any new behavior.
 4. **Update docs.** If you add or change a subagent, hook, or command, update the matching file under `docs/reference/`.
 5. **Update CHANGELOG.md** under the `[Unreleased]` heading.
 6. **Open a PR** with a clear title (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`) and a Summary + Test plan section.
+
+## Releasing
+
+Releases are cut by pushing a version tag. The `Release` workflow (`.github/workflows/release.yml`) does the rest.
+
+1. **Land the version bump.** A merged PR should already have bumped `.claude-plugin/plugin.json` to the new `X.Y.Z` and moved its CHANGELOG entries from `[Unreleased]` into a `## [X.Y.Z] - <date>` section. Follow [SemVer](https://semver.org): MINOR for new backward-compatible features, PATCH for fixes.
+2. **Tag `main` and push the tag:**
+   ```bash
+   git checkout main && git pull
+   git tag -a vX.Y.Z -m "vX.Y.Z - <summary>"
+   git push origin vX.Y.Z
+   ```
+3. **The workflow takes over.** On a `v*.*.*` tag push it: verifies the tag matches `plugin.json` (fails loudly if not), extracts the `## [X.Y.Z]` section from `CHANGELOG.md` as the release notes, and creates the GitHub release marked `--latest`.
+
+A merged PR alone does NOT publish a release: the marketplace serves released versions, so an untagged bump never reaches installs. Always push the tag.
 
 ## Local development
 
