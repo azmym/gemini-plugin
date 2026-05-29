@@ -4,6 +4,17 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-05-29
+
+### Fixed
+
+- **Agents could not call Gemini when installed as a plugin.** Plugin-registered MCP servers are namespaced under the plugin (the tool names carry a plugin prefix), but every agent's `tools:` allowlist named the bare un-prefixed form, which does not exist in a plugin session. An agent whose allowlist names only nonexistent tools gets zero Gemini tools and silently falls back to training data (observed: gemini-researcher returned empty citations, low confidence, and a wrong answer). Fixed by removing the `tools:` block from all five agents so they inherit the session's Gemini tools under whatever namespace is registered (works for both plugin and manual installs). Prose and reference docs now use namespace-agnostic short tool names.
+- **Agents no longer fabricate when Gemini is unavailable.** Each agent now fails loud: if no Gemini MCP tool is present in the session, it returns `verdict: "unknown"` (researcher: `confidence: "unavailable"`) with an `error` field naming the missing tool, instead of answering from training knowledge.
+
+### Added
+
+- `tests/mcp-namespace.bats` regression guard: forbids a `tools:` key in agent frontmatter and any hardcoded plugin/server MCP namespace path in agents, skills, and hook scripts.
+
 ## [0.4.0] - 2026-05-29
 
 ### Added
