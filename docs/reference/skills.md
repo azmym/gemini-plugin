@@ -1,12 +1,13 @@
 # Skills Reference
 
-The plugin ships 8 task-oriented skills. Skills tell Claude WHEN to reach for Gemini and WHICH MCP tool to use. They load on-demand when Claude determines a match based on the description field.
+The plugin ships 9 task-oriented skills. Skills tell Claude WHEN to reach for Gemini and WHICH MCP tool to use. They load on-demand when Claude determines a match based on the description field.
 
 ## Skill index
 
 | Skill | MCP tools | Auto-invoked? |
 |---|---|---|
 | [gemini-when-to-use](#gemini-when-to-use) | (none, decision guide) | Yes (broadest description) |
+| [gemini-consult](#gemini-consult) | (none, dispatch rule) | Yes (routes among the 5 agents) |
 | [gemini-chat-and-reason](#gemini-chat-and-reason) | `gemini_generate`, `gemini_chat` | Yes |
 | [gemini-research-grounded](#gemini-research-grounded) | `gemini_search_grounded`, `gemini_start_research`, `gemini_get_research_report` | Yes |
 | [gemini-file-analysis](#gemini-file-analysis) | `gemini_analyze_file` | Yes |
@@ -26,6 +27,14 @@ The plugin ships 8 task-oriented skills. Skills tell Claude WHEN to reach for Ge
 - Cost discipline (Sonnet for validator/researcher and Opus for challenger/summarizer; opt-in deep research; brainstorm-off when you want to reduce per-prompt grounding)
 
 **Invocation:** `/gemini-plugin:gemini-when-to-use` or auto-invoked when Claude is uncertain
+
+## gemini-consult
+
+**Description:** Dispatch rule for the five Gemini agents. Routes a consult to the right agent and enforces a one-consult-per-turn cap on manual dispatches.
+
+**Purpose:** Complements gemini-when-to-use. Where gemini-when-to-use routes among the seven capability skills (raw MCP calls), gemini-consult routes among the five subagents (researcher, validator, challenger, reviewer, summarizer) for structured second-opinion work, and holds the per-turn cap plus the disagreement protocol.
+
+**Invocation:** Auto-consulted when Claude is deciding whether and how to get a Gemini second opinion. No MCP tools (decision guide only).
 
 ## gemini-chat-and-reason
 
