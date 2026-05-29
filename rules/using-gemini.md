@@ -1,6 +1,6 @@
 ## Gemini Plugin: Session Rules
 
-The gemini-plugin is loaded. Four subagents assist you:
+The gemini-plugin is loaded. Five subagents assist you:
 
 | Agent | Role | Spawn via |
 |---|---|---|
@@ -8,6 +8,7 @@ The gemini-plugin is loaded. Four subagents assist you:
 | gemini-challenger | Devil's advocate; proposes alternatives, challenges destructive ops | Hook (PreToolUse Bash) or /gemini-plugin:gemini-challenge |
 | gemini-researcher | Search-grounded facts with citations; never opines without a URL | Hook (UserPromptSubmit) or /gemini-plugin:gemini-research |
 | gemini-summarizer | Compresses session state; writes risk maps at SessionStart | Hook (SessionStart, PreCompact) |
+| gemini-reviewer | Generalist diff/PR review: security, threading, version drift, docs, dead code | /gemini-plugin:gemini-consult rule (manual dispatch) |
 
 ### Always reach for Gemini when
 
@@ -26,6 +27,7 @@ The gemini-plugin is loaded. Four subagents assist you:
 ### Cost discipline
 
 - Validator and researcher use sonnet; challenger and summarizer use opus. Per-prompt grounding now defaults on, so this is a real cost; opt out with /gemini-plugin:gemini-brainstorm-off if needed.
+- Manual consults (researcher, validator, challenger, reviewer, summarizer via the gemini-consult rule) are capped at one per turn. The always-on hooks are a separate channel, not counted against that cap.
 - Deep research is opt-in only (via /gemini-plugin:gemini-research --deep)
 - One validation per artifact per session. No re-asking.
 - API key is configured at install time (stored in keychain). If unavailable, everything gracefully no-ops.
