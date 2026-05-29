@@ -2,11 +2,12 @@
 
 AGENTS_DIR="agents"
 
-@test "all 4 agent files exist" {
+@test "all 5 agent files exist" {
   [ -f "$AGENTS_DIR/gemini-validator.md" ]
   [ -f "$AGENTS_DIR/gemini-challenger.md" ]
   [ -f "$AGENTS_DIR/gemini-researcher.md" ]
   [ -f "$AGENTS_DIR/gemini-summarizer.md" ]
+  [ -f "$AGENTS_DIR/gemini-reviewer.md" ]
 }
 
 extract_frontmatter() {
@@ -50,15 +51,24 @@ extract_frontmatter() {
   echo "$FM" | grep -q "^memory: project"
 }
 
+@test "gemini-reviewer has required frontmatter fields" {
+  FM=$(extract_frontmatter "$AGENTS_DIR/gemini-reviewer.md")
+  echo "$FM" | grep -q "^name: gemini-reviewer"
+  echo "$FM" | grep -q "^model: sonnet"
+  echo "$FM" | grep -q "^color: cyan"
+  echo "$FM" | grep -q "^maxTurns: 10"
+  echo "$FM" | grep -q "mcp__gemini__gemini_chat"
+}
+
 @test "all agents preload gemini-when-to-use skill" {
-  for agent in validator challenger researcher summarizer; do
+  for agent in validator challenger researcher summarizer reviewer; do
     FM=$(extract_frontmatter "$AGENTS_DIR/gemini-${agent}.md")
     echo "$FM" | grep -q "gemini-when-to-use"
   done
 }
 
 @test "no agent uses disallowed tools" {
-  for agent in validator challenger researcher summarizer; do
+  for agent in validator challenger researcher summarizer reviewer; do
     FM=$(extract_frontmatter "$AGENTS_DIR/gemini-${agent}.md")
     ! echo "$FM" | grep -q "Agent"
     ! echo "$FM" | grep -q "AskUserQuestion"
@@ -68,7 +78,7 @@ extract_frontmatter() {
 }
 
 @test "agent descriptions start with 'Use proactively'" {
-  for agent in validator challenger researcher summarizer; do
+  for agent in validator challenger researcher summarizer reviewer; do
     FM=$(extract_frontmatter "$AGENTS_DIR/gemini-${agent}.md")
     echo "$FM" | grep -q "Use proactively"
   done

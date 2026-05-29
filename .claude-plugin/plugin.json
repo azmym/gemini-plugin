@@ -1,8 +1,8 @@
 {
   "name": "gemini-plugin",
   "displayName": "Gemini Plugin",
-  "version": "0.3.0",
-  "description": "Wraps gemini-mcp into a Claude Code plugin so Gemini acts as a second opinion: validator/challenger/researcher/summarizer subagents, auto-trigger hooks, and 8 task-oriented skills.",
+  "version": "0.4.0",
+  "description": "Wraps gemini-mcp into a Claude Code plugin so Gemini acts as a second opinion: validator/challenger/researcher/summarizer/reviewer subagents, auto-trigger hooks, and 9 task-oriented skills.",
   "author": { "name": "azmym" },
   "homepage": "https://github.com/azmym/gemini-plugin",
   "repository": "https://github.com/azmym/gemini-plugin",

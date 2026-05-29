@@ -8,7 +8,7 @@ This document describes the system architecture of gemini-plugin: how the compon
 graph TB
     subgraph "Claude Code Session"
         User[User] --> Claude[Main Claude Agent]
-        Claude --> Skills[8 Skills]
+        Claude --> Skills[9 Skills]
         Claude --> Commands[5 Slash Commands]
     end
 
@@ -26,6 +26,7 @@ graph TB
         Claude --> |Agent tool| Challenger[gemini-challenger]
         Claude --> |Agent tool| Researcher[gemini-researcher]
         Claude --> |Agent tool| Summarizer[gemini-summarizer]
+            Claude --> |Agent tool| Reviewer[gemini-reviewer]
     end
 
     subgraph "MCP (execution layer)"
@@ -33,6 +34,7 @@ graph TB
         Challenger --> MCP
         Researcher --> MCP
         Summarizer --> MCP
+            Reviewer --> MCP
     end
 
     subgraph "Google AI Studio"
@@ -121,8 +123,8 @@ sequenceDiagram
 | Component | Count | Location | Purpose |
 |---|---|---|---|
 | Plugin manifest | 1 | `.claude-plugin/plugin.json` | Metadata, userConfig prompt, MCP server registration |
-| Skills | 8 | `skills/*/SKILL.md` | When/how to use Gemini capabilities |
-| Subagents | 4 | `agents/*.md` | Role-specific reasoning with structured output |
+| Skills | 9 | `skills/*/SKILL.md` | When/how to use Gemini capabilities |
+| Subagents | 5 | `agents/*.md` | Role-specific reasoning with structured output |
 | Commands | 5 | `commands/*.md` | User-invoked slash commands |
 | Hooks | 7 | `hooks/hooks.json` + `hooks/*.sh` | 6 triggers + 1 verdict handler |
 | Shared library | 2 | `hooks/lib/*.sh` | JSON helpers, gates, prompt builders |
@@ -166,7 +168,7 @@ The plugin manifest auto-registers the gemini MCP server on install:
 }
 ```
 
-All 4 subagents inherit this MCP connection from the parent session (plugin subagents cannot define their own `mcpServers` in frontmatter).
+All 5 subagents inherit this MCP connection from the parent session (plugin subagents cannot define their own `mcpServers` in frontmatter).
 
 ## State management
 
@@ -199,5 +201,6 @@ State is local, session-scoped, and disposable. Deleting the data directory rese
 | gemini-challenger | Opus | Hardest reasoning task (creative alternatives + objections); bumped from Sonnet in v0.3.0 |
 | gemini-researcher | Sonnet | Multi-source synthesis and citation discipline; bumped from Haiku in v0.3.0 |
 | gemini-summarizer | Opus | Large-input compression with structured output; bumped from Sonnet in v0.3.0 |
+| gemini-reviewer | Sonnet | Generalist diff/PR review; manual consult via the gemini-consult rule (added in v0.4.0) |
 
 All subagents call Gemini models via MCP (default: `gemini-3.5-flash` for chat/search, `gemini-3.1-pro-preview` for generate). The Claude model handles orchestration and JSON structuring; the Gemini model handles reasoning and web access. The Claude-side model bumps in v0.3.0 fixed a class of partial-response failures where validator and other agents were exiting before producing the final JSON verdict.

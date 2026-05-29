@@ -1,5 +1,5 @@
 ---
-description: Master router for the Gemini plugin. Use when uncertain whether a Gemini consult is warranted; covers cost discipline, anti-hallucination triggers, and the four subagent roles. Invoke before any other gemini-* skill.
+description: Master router for the Gemini plugin. Use when uncertain whether a Gemini consult is warranted; covers cost discipline, anti-hallucination triggers, and the five subagent roles. Invoke before any other gemini-* skill.
 ---
 
 # Gemini When To Use
@@ -28,7 +28,7 @@ Invoke a Gemini skill whenever the response would otherwise rely on:
 - A claim about a living document (spec, RFC, standard) that may have been updated.
 - An assertion about the current state of a third-party service or cloud provider.
 
-## The four subagent roles (agents/ directory)
+## The five subagent roles (agents/ directory)
 
 These are pre-built agent configurations for common Gemini workflows. Prefer them over raw MCP calls for structured tasks:
 
@@ -38,6 +38,7 @@ These are pre-built agent configurations for common Gemini workflows. Prefer the
 | Summarizer | `agents/gemini-summarizer.md` | Condensing long documents, transcripts, or codebases |
 | Validator | `agents/gemini-validator.md` | Fact-checking claims, verifying logic, sanity-checking before commit |
 | Challenger | `agents/gemini-challenger.md` | Devil's advocate critique, stress-testing designs or decisions |
+| Reviewer | `agents/gemini-reviewer.md` | Generalist diff/PR review (security, threading, version drift, docs, dead code); manual, advisory via the gemini-consult rule |
 
 ## The seven capability skills
 

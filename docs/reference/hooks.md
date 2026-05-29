@@ -124,11 +124,11 @@ Patterns that look destructive but pass through (intentional false-positive guar
 | Field | Value |
 |---|---|
 | Event | `SubagentStop` |
-| Matcher | `gemini-validator|gemini-challenger|gemini-researcher|gemini-summarizer` |
+| Matcher | `gemini-validator|gemini-challenger|gemini-researcher|gemini-summarizer|gemini-reviewer` |
 | Gate | Transcript must exist and contain parseable JSON verdict |
 | Blocking | Conditional: exit 2 if verdict=fail or verdict=block; exit 0 otherwise |
 
-**What it does:** Reads the subagent's transcript, extracts the final JSON verdict, applies the loop guard (identical verdict twice in a row is demoted to advisory), persists to plan-history.jsonl, and decides whether to block.
+**What it does:** Reads the subagent's transcript, extracts the final JSON verdict, applies the loop guard (identical verdict twice in a row is demoted to advisory), persists to plan-history.jsonl, and decides whether to block. gemini-reviewer's verdict (changes_requested) is advisory and does not trigger the exit-2 block path (only fail/block block).
 
 **Stdin JSON:** `{"agent_type": "gemini-validator", "transcript_path": "/path/to/transcript.jsonl"}`
 

@@ -226,6 +226,13 @@ teardown() {
   [ "$status" -eq 0 ]
 }
 
+@test "verdict-handler: reviewer changes_requested is advisory (exits 0)" {
+  TRANSCRIPT="$BATS_TMPDIR/transcript-$$.jsonl"
+  echo '{"type":"assistant","message":{"content":[{"text":"{\"verdict\":\"changes_requested\",\"issues\":{\"critical\":[\"sql injection at db.go:42\"]}}"}]}}' > "$TRANSCRIPT"
+  run bash -c "echo '{\"agent_type\":\"gemini-reviewer\",\"transcript_path\":\"${TRANSCRIPT}\"}' | ./hooks/subagent-verdict-handler.sh"
+  [ "$status" -eq 0 ]
+}
+
 # --- plugin disable ---
 
 @test "all hooks exit 0 when CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1" {

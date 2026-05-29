@@ -4,6 +4,17 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-29
+
+### Added
+
+- **`gemini-reviewer` agent (5th subagent).** A generalist third-reviewer for diffs and PRs, covering the cross-cutting concerns the other four agents do not own: security, threading correctness, library/version drift, doc accuracy, dead code, and complexity. Modeled on the `gemini-assistant` "code review" mode from the IPTV project setup. Sonnet, `maxTurns: 10`, returns structured JSON `{verdict, strengths, issues, next_actions}`. It is advisory: a `changes_requested` verdict surfaces inline but does not block, because the reviewer is dispatched manually rather than by a hook.
+- **`gemini-consult` dispatch-rule skill (9th skill).** Tells the main Claude when to consult Gemini, which of the five agents to route to, and enforces a one-consult-per-turn cap on manual dispatches (the always-on hooks are a separate, uncounted channel). Ports the disagreement protocol and "what you are NOT" scope guards from the IPTV `gemini-assistant` rule.
+
+### Changed
+
+- `gemini-reviewer` added to the `SubagentStop` matcher so its transcript is read and persisted to plan-history.
+
 ## [0.3.0] - 2026-05-28
 
 ### Changed

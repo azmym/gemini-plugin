@@ -45,7 +45,7 @@
     ],
     "SubagentStop": [
       {
-        "matcher": "gemini-validator|gemini-challenger|gemini-researcher|gemini-summarizer",
+        "matcher": "gemini-validator|gemini-challenger|gemini-researcher|gemini-summarizer|gemini-reviewer",
         "hooks": [
           { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/subagent-verdict-handler.sh", "async": false }
         ]
