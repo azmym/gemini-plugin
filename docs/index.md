@@ -13,8 +13,8 @@ A Claude Code plugin that turns Google Gemini into a second-opinion assistant la
 | [Configure hooks](how-to/configure-hooks.md) | Enable, disable, or customize the automatic triggers |
 | **Reference** | |
 | [Architecture](reference/architecture.md) | System architecture, data flow, and component diagram |
-| [Skills](reference/skills.md) | All 8 skills with descriptions and MCP tool mappings |
-| [Subagents](reference/subagents.md) | All 4 subagents with frontmatter, tools, and output schemas |
+| [Skills](reference/skills.md) | All 9 skills with descriptions and MCP tool mappings |
+| [Subagents](reference/subagents.md) | All 5 subagents with frontmatter, tools, and output schemas |
 | [Hooks](reference/hooks.md) | All 7 hooks with event types, gates, and exit behavior |
 | [Commands](reference/commands.md) | All 5 slash commands with usage examples |
 | **Explanation** | |
@@ -29,9 +29,10 @@ Plugin installs via marketplace
 ┌─────────────────────────────────────────────┐
 │ gemini-plugin                               │
 │                                             │
-│  8 skills    - when/how to use Gemini       │
-│  4 subagents - validator, challenger,       │
-│                researcher, summarizer       │
+│  9 skills    - when/how to use Gemini       │
+│  5 subagents - validator, challenger,       │
+│                researcher, summarizer,      │
+│                reviewer                     │
 │  7 hooks     - auto-trigger on key events   │
 │  5 commands  - manual slash invocation      │
 │  1 rule      - session-level guidance       │
