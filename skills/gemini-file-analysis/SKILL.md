@@ -19,7 +19,7 @@ Use this skill to send files to Gemini for multi-modal analysis. Gemini can read
 
 | Tool | Purpose |
 |---|---|
-| `mcp__gemini__gemini_analyze_file` | Upload a file and run a prompt against its contents |
+| `gemini_analyze_file` | Upload a file and run a prompt against its contents |
 
 ## Usage pattern
 
@@ -27,7 +27,7 @@ Use this skill to send files to Gemini for multi-modal analysis. Gemini can read
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_analyze_file",
+  "tool": "gemini_analyze_file",
   "arguments": {
     "file_path": "/path/to/architecture-decision-record.pdf",
     "prompt": "Summarize the key architectural decisions and list any open questions."
@@ -39,7 +39,7 @@ Use this skill to send files to Gemini for multi-modal analysis. Gemini can read
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_analyze_file",
+  "tool": "gemini_analyze_file",
   "arguments": {
     "file_path": "/path/to/error-screenshot.png",
     "prompt": "What error is shown and what are the most likely root causes?"
@@ -51,7 +51,7 @@ Use this skill to send files to Gemini for multi-modal analysis. Gemini can read
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_analyze_file",
+  "tool": "gemini_analyze_file",
   "arguments": {
     "file_path": "/path/to/meeting-recording.mp3",
     "prompt": "Transcribe the key action items and decisions from this meeting."
@@ -63,7 +63,7 @@ Use this skill to send files to Gemini for multi-modal analysis. Gemini can read
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_analyze_file",
+  "tool": "gemini_analyze_file",
   "arguments": {
     "file_path": "/path/to/large-codebase.tar.gz",
     "prompt": "Identify the main modules, entry points, and any obvious code quality issues."

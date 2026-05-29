@@ -19,15 +19,15 @@ Use this skill to generate audio assets: background music via Lyria 3 or synthes
 
 | Tool | Purpose |
 |---|---|
-| `mcp__gemini__gemini_generate_music` | Generate music using Lyria 3 |
-| `mcp__gemini__gemini_tts` | Synthesize speech (single or multi-speaker) using Gemini TTS |
+| `gemini_generate_music` | Generate music using Lyria 3 |
+| `gemini_tts` | Synthesize speech (single or multi-speaker) using Gemini TTS |
 
 ## Choosing between music and TTS
 
 | Need | Tool |
 |---|---|
-| Background music, jingle, ambient track, sound effect | `mcp__gemini__gemini_generate_music` |
-| Narration, voiceover, spoken explanation, dialogue | `mcp__gemini__gemini_tts` |
+| Background music, jingle, ambient track, sound effect | `gemini_generate_music` |
+| Narration, voiceover, spoken explanation, dialogue | `gemini_tts` |
 
 ## Usage pattern
 
@@ -35,7 +35,7 @@ Use this skill to generate audio assets: background music via Lyria 3 or synthes
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_generate_music",
+  "tool": "gemini_generate_music",
   "arguments": {
     "prompt": "Upbeat, modern corporate background music. Light percussion, synthesizer melody, energetic but not distracting. Suitable for a product demo video.",
     "duration_seconds": 30
@@ -47,7 +47,7 @@ Use this skill to generate audio assets: background music via Lyria 3 or synthes
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_tts",
+  "tool": "gemini_tts",
   "arguments": {
     "text": "Welcome to the Gemini plugin for Claude Code. This tool gives Claude the ability to consult Google's Gemini models for research, code review, image generation, and more.",
     "voice": "en-US-Standard-D",
@@ -60,7 +60,7 @@ Use this skill to generate audio assets: background music via Lyria 3 or synthes
 
 ```json
 {
-  "tool": "mcp__gemini__gemini_tts",
+  "tool": "gemini_tts",
   "arguments": {
     "turns": [
       { "speaker": "Host", "voice": "en-US-Standard-F", "text": "So, what makes this plugin different from just calling the Gemini API directly?" },
