@@ -4,6 +4,12 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-05-29
+
+### Added
+
+- **`/gemini-plugin:gemini-doctor` command.** A one-step self-diagnostic that distinguishes a real Gemini outage from a stale session. It runs four checks: (1) API key configured, (2) the MCP server is reachable from the main agent (resolves the tool under either the plugin namespace `mcp__plugin_gemini-plugin_gemini__*` or the manual-install namespace `mcp__gemini__*`, then calls it for real), (3) the subagent grounding path works by spawning `gemini-researcher` and confirming it actually sees a Gemini tool, and (4) the on-disk plugin version. When checks 1 and 2 pass but check 3 fails, it reports STALE SESSION and tells the user to restart Claude Code. This is the common cause of "grounding produced nothing" reports: the MCP server works, but a session started before a plugin update still has the outdated agent definitions loaded in memory.
+
 ## [0.4.1] - 2026-05-29
 
 ### Fixed

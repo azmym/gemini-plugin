@@ -99,7 +99,7 @@ The two are separate surfaces: commands are listed below under [Slash commands](
 
 ## Slash commands
 
-Five commands, all under the `/gemini-plugin:` prefix.
+Six commands, all under the `/gemini-plugin:` prefix.
 
 | Command | Arguments | What it does |
 |---|---|---|
@@ -108,6 +108,7 @@ Five commands, all under the `/gemini-plugin:` prefix.
 | `/gemini-plugin:gemini-research` | `<query> [--deep]` | Quick web search with citations; add `--deep` for multi-source synthesis. Spawns `gemini-researcher`. |
 | `/gemini-plugin:gemini-brainstorm-off` | (none) | Opt out of grounding-on-every-prompt; fall back to narrow keyword matching. Recommended for chatty sessions to control cost. |
 | `/gemini-plugin:gemini-brainstorm-on` | (none) | Re-enable grounding on every prompt after a previous opt-out (this is the default after install). |
+| `/gemini-plugin:gemini-doctor` | (none) | Diagnose whether Gemini grounding works in this session. Checks the API key, the MCP server (main agent), and the subagent path; flags a stale session that needs a restart. |
 
 There is no `gemini-review` command: diff review runs through the `gemini-consult` skill, which dispatches the `gemini-reviewer` subagent. See [Subagents](#subagents).
 

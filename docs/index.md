@@ -16,7 +16,7 @@ A Claude Code plugin that turns Google Gemini into a second-opinion assistant la
 | [Skills](reference/skills.md) | All 9 skills with descriptions and MCP tool mappings |
 | [Subagents](reference/subagents.md) | All 5 subagents with frontmatter, tools, and output schemas |
 | [Hooks](reference/hooks.md) | All 7 hooks with event types, gates, and exit behavior |
-| [Commands](reference/commands.md) | All 5 slash commands with usage examples |
+| [Commands](reference/commands.md) | All 6 slash commands with usage examples |
 | **Explanation** | |
 | [Design decisions](explanation/design-decisions.md) | Why single-turn validation, why these gates, cost tradeoffs |
 
@@ -34,7 +34,7 @@ Plugin installs via marketplace
 │                researcher, summarizer,      │
 │                reviewer                     │
 │  7 hooks     - auto-trigger on key events   │
-│  5 commands  - manual slash invocation      │
+│  6 commands  - manual slash invocation      │
 │  1 rule      - session-level guidance       │
 │                                             │
 │  MCP: gemini-mcp (13 tools, pinned v0.2.0) │

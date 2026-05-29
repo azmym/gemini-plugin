@@ -1,6 +1,6 @@
 # Commands Reference
 
-The plugin ships 5 slash commands. Three invoke subagents for manual consultation. Two toggle brainstorming mode.
+The plugin ships 6 slash commands. Three invoke subagents for manual consultation. Two toggle brainstorming mode. One diagnoses the session.
 
 ## Command index
 
@@ -11,6 +11,7 @@ The plugin ships 5 slash commands. Three invoke subagents for manual consultatio
 | `/gemini-plugin:gemini-research` | gemini-researcher | Grounded research |
 | `/gemini-plugin:gemini-brainstorm-on` | (none) | Enable unconditional grounding |
 | `/gemini-plugin:gemini-brainstorm-off` | (none) | Disable unconditional grounding |
+| `/gemini-plugin:gemini-doctor` | gemini-researcher (probe) | Diagnose the MCP server and subagent grounding path |
 
 ## gemini-validate
 
@@ -103,3 +104,24 @@ The plugin ships 5 slash commands. Three invoke subagents for manual consultatio
 **Behavior:** Creates `brainstorm.off` in `${CLAUDE_PLUGIN_DATA}`. While this file exists, the `UserPromptSubmit` hook only fires on prompts that match a narrow keyword regex (e.g. "latest version of X", "CVE-YYYY-NNN", "changelog for X"). Recommended for chatty sessions where you want to control cost.
 
 **Confirmation message:** "Brainstorming mode OFF. Gemini will only ground prompts that match post-cutoff keyword patterns."
+
+## gemini-doctor
+
+**Usage:**
+
+```
+/gemini-plugin:gemini-doctor
+```
+
+**Arguments:** none
+
+**Behavior:** Runs four diagnostic checks and prints a pass/fail summary:
+
+1. **API key configured.** Confirms `CLAUDE_PLUGIN_OPTION_GEMINI_API_KEY` or `GEMINI_API_KEY` is set, without printing the key.
+2. **MCP server reachable from the main agent.** Resolves the grounded-search tool under either the plugin namespace (`mcp__plugin_gemini-plugin_gemini__gemini_search_grounded`) or the manual-install namespace (`mcp__gemini__gemini_search_grounded`), then calls it once to confirm live results with citation URLs.
+3. **Subagent grounding path.** Spawns `gemini-researcher` and confirms it actually sees a Gemini tool in its inventory and grounds for real. This is the check that catches the most common failure.
+4. **On-disk version.** Reports the plugin version in `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`, which is what the next fresh session will load.
+
+**Why it exists:** the most common "grounding produced nothing" report is a **stale session**: the MCP server works (check 2 passes), but a session started before a plugin update still has the outdated subagent definitions loaded in memory (check 3 fails). Subagent definitions are loaded at session start and are not reloaded when the plugin updates on disk. When the doctor sees check 2 pass and check 3 fail, it tells the user to restart Claude Code.
+
+**Diagnosis output:** one line identifying the first failing condition (missing key, server unreachable, stale session, or healthy).
