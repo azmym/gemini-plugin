@@ -18,7 +18,7 @@ The plugin ships 9 task-oriented skills. Skills tell Claude WHEN to reach for Ge
 
 ## gemini-when-to-use
 
-**Description:** Master router for the Gemini plugin. Covers cost discipline, anti-hallucination triggers, and the four subagent roles.
+**Description:** Master router for the Gemini plugin. Covers cost discipline, anti-hallucination triggers, and the five subagent roles.
 
 **Purpose:** Loaded first, before any other gemini-* skill. Tells Claude:
 - Which subagent to use for which situation
