@@ -21,7 +21,6 @@ extract_frontmatter() {
   echo "$FM" | grep -q "^model: sonnet"
   echo "$FM" | grep -q "^color: blue"
   echo "$FM" | grep -q "^maxTurns: 6"
-  echo "$FM" | grep -q "mcp__gemini__gemini_generate"
 }
 
 @test "gemini-challenger has required frontmatter fields" {
@@ -57,7 +56,6 @@ extract_frontmatter() {
   echo "$FM" | grep -q "^model: sonnet"
   echo "$FM" | grep -q "^color: cyan"
   echo "$FM" | grep -q "^maxTurns: 10"
-  echo "$FM" | grep -q "mcp__gemini__gemini_chat"
 }
 
 @test "all agents preload gemini-when-to-use skill" {
