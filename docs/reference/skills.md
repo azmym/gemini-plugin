@@ -41,8 +41,8 @@ The plugin ships 9 task-oriented skills. Skills tell Claude WHEN to reach for Ge
 **Description:** Get a second opinion from Gemini via text generation or multi-turn chat.
 
 **MCP tools:**
-- `mcp__gemini__gemini_generate` (single-turn, stateless, cheapest)
-- `mcp__gemini__gemini_chat` (multi-turn, retains session context)
+- `gemini_generate` (single-turn, stateless, cheapest)
+- `gemini_chat` (multi-turn, retains session context)
 
 **Use for:** Code review, design critique, sanity-checking before commit, architectural debates.
 
@@ -53,9 +53,9 @@ The plugin ships 9 task-oriented skills. Skills tell Claude WHEN to reach for Ge
 **Description:** Live-web research with citations for post-training-cutoff information.
 
 **MCP tools:**
-- `mcp__gemini__gemini_search_grounded` (quick, 2-5s)
-- `mcp__gemini__gemini_start_research` (deep, 30-120s)
-- `mcp__gemini__gemini_get_research_report` (polls deep research)
+- `gemini_search_grounded` (quick, 2-5s)
+- `gemini_start_research` (deep, 30-120s)
+- `gemini_get_research_report` (polls deep research)
 
 **Use for:** Library versions, API docs, CVEs, pricing, current best practices.
 
@@ -66,7 +66,7 @@ The plugin ships 9 task-oriented skills. Skills tell Claude WHEN to reach for Ge
 **Description:** Multi-modal file Q&A for PDFs, images, audio, video, and large source files.
 
 **MCP tools:**
-- `mcp__gemini__gemini_analyze_file`
+- `gemini_analyze_file`
 
 **Use for:** Files too large for Claude's context, non-text formats (PDFs, screenshots, audio recordings, video demos).
 
@@ -77,7 +77,7 @@ The plugin ships 9 task-oriented skills. Skills tell Claude WHEN to reach for Ge
 **Description:** Run Python in Gemini's sandbox for computational verification.
 
 **MCP tools:**
-- `mcp__gemini__gemini_code_execute`
+- `gemini_code_execute`
 
 **Use for:** Verifying math, testing regex patterns, validating algorithms, checking date calculations.
 
@@ -88,8 +88,8 @@ The plugin ships 9 task-oriented skills. Skills tell Claude WHEN to reach for Ge
 **Description:** Generate images using native Gemini generation or Imagen 4.
 
 **MCP tools:**
-- `mcp__gemini__gemini_generate_image` (Nano Banana, fast iteration)
-- `mcp__gemini__gemini_generate_image_imagen` (Imagen 4, premium quality)
+- `gemini_generate_image` (Nano Banana, fast iteration)
+- `gemini_generate_image_imagen` (Imagen 4, premium quality)
 
 **Use for:** UI mockups, hero images, product shots, infographic frames.
 
@@ -100,8 +100,8 @@ The plugin ships 9 task-oriented skills. Skills tell Claude WHEN to reach for Ge
 **Description:** Async video generation using Veo 3.1 (start + poll pattern).
 
 **MCP tools:**
-- `mcp__gemini__gemini_start_video` (returns operation_id)
-- `mcp__gemini__gemini_get_video` (polls until done, returns MP4 path)
+- `gemini_start_video` (returns operation_id)
+- `gemini_get_video` (polls until done, returns MP4 path)
 
 **Use for:** Product demos, B-roll, short animations. Takes 30s to a few minutes.
 
@@ -112,7 +112,7 @@ The plugin ships 9 task-oriented skills. Skills tell Claude WHEN to reach for Ge
 **Description:** Music generation (Lyria 3) and text-to-speech (single or multi-speaker).
 
 **MCP tools:**
-- `mcp__gemini__gemini_generate_music` (Lyria 3)
-- `mcp__gemini__gemini_tts` (Gemini TTS, multi-speaker capable)
+- `gemini_generate_music` (Lyria 3)
+- `gemini_tts` (Gemini TTS, multi-speaker capable)
 
 **Use for:** Soundtracks, voiceovers, narration, notification sounds, audio branding.
