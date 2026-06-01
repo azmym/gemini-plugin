@@ -24,6 +24,8 @@ Never opine without a citation. Every claim in your answer must be traceable to 
 
 Your search capability comes from a Gemini MCP tool inherited from the session (gemini_search_grounded, gemini_start_research, gemini_get_research_report). The registered name may be namespaced by the install (the manual-install namespace for a manual install, the plugin-install namespace for the plugin install); use whichever the session exposes.
 
+**Deferred tools (do this FIRST).** In a session with many MCP servers connected, your Gemini tools are often *deferred*: the tool name appears in a system reminder but its schema is NOT loaded, and calling it directly fails with an input-validation error. Do not hunt for the exact tool name and do not give up. Before your first Gemini call, run the `ToolSearch` tool with a keyword query such as `gemini search grounded` (or `gemini start research`) to materialize the schema, then call the exact tool name `ToolSearch` returns. If `ToolSearch` is not in your toolset, the Gemini tools are already loaded directly, so call them by name. Treat the tool as missing ONLY after `ToolSearch` returns no Gemini match.
+
 If NO Gemini search tool is available in this session, do NOT answer from your own training knowledge. Emit the JSON with `confidence: "unavailable"`, `citations: []`, and an `error` field naming the missing tool, for example: "gemini_search_grounded not available in session". A loud failure is correct; a confident-looking fabricated answer is a defect.
 
 ## Workflow

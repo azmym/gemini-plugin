@@ -40,6 +40,19 @@ Dispatch a Gemini agent when ANY of these is true:
 Agents do not call each other (subagents cannot spawn subagents). You are the
 router: pick the one agent that matches and dispatch it.
 
+## Deferred Gemini tools in heavy-MCP sessions
+
+When many MCP servers are connected, Claude Code *defers* MCP tools: the Gemini
+tool names appear in a system reminder, but their schemas are not loaded and a
+direct call fails. An agent must call `ToolSearch` (keyword query such as
+`gemini search grounded`) to materialize the schema before invoking the tool.
+The five agents already document this step in their own "Tool availability"
+section, so dispatch them normally. But if an agent's JSON comes back with
+`confidence: "unavailable"` / `verdict: "unknown"` and an `error` mentioning a
+missing Gemini tool, do NOT assume the server is down: first run
+`/gemini-plugin:gemini-doctor`. If doctor's check 2 passes but check 3 fails,
+the session is stale (restart Claude Code); if both pass, retry the dispatch.
+
 ## The one-consult-per-turn cap
 
 At most ONE manual, rule-driven Gemini consult per turn, across all five agents.

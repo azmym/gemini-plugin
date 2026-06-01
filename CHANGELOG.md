@@ -4,6 +4,17 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-06-01
+
+### Fixed
+
+- **Agents stalled "hunting for the tool name" in sessions with many MCP servers.** When numerous MCP servers are connected, Claude Code switches MCP tools into *deferred* mode: the tool name is shown in a system reminder but its schema is not loaded, so a direct call fails until the caller materializes it via `ToolSearch`. The five agents told themselves to "use the gemini_search_grounded tool" but never mentioned `ToolSearch`, so a subagent in a heavy-MCP session could not find a directly-callable Gemini tool, burned its turn budget hunting for the name, and ended mid-investigation without emitting its JSON, after which the orchestrator fell back to plain web search. This was intermittent because a light session loads the tools directly and a capable model sometimes rediscovers `ToolSearch` unaided. Distinct from the v0.4.1 `tools:`-allowlist bug and from the stale-session case `gemini-doctor` covers. Fixed by adding a "Deferred tools (do this FIRST)" step to each agent's "Tool availability" section: call `ToolSearch` with a namespace-agnostic keyword query (e.g. `gemini search grounded`) to load the schema, then call the exact tool name returned; treat the tool as missing only after `ToolSearch` returns no match.
+
+### Changed
+
+- `gemini-consult` skill documents the deferred-tool path and points to `/gemini-plugin:gemini-doctor` when an agent returns `unavailable`/`unknown` with a missing-tool error.
+- `tests/mcp-namespace.bats` now asserts every agent documents the `ToolSearch` deferred-tool step using a keyword query (not a hardcoded `mcp__` path).
+
 ## [0.5.0] - 2026-05-29
 
 ### Added
