@@ -46,3 +46,28 @@ AGENTS=(gemini-validator gemini-challenger gemini-researcher gemini-summarizer g
     fi
   done
 }
+
+@test "every agent documents the deferred-tool ToolSearch step" {
+  # In heavy-MCP sessions the Gemini tools are deferred (schema not loaded);
+  # an agent must call ToolSearch before invoking them or it stalls hunting
+  # for the tool name. Each agent MUST teach this in its system prompt.
+  for agent in "${AGENTS[@]}"; do
+    if ! grep -q "ToolSearch" "$AGENTS_DIR/${agent}.md"; then
+      echo "FAIL: $agent does not mention ToolSearch (deferred-tool path missing)"
+      return 1
+    fi
+  done
+}
+
+@test "the deferred-tool note uses keyword queries, not a hardcoded mcp__ path" {
+  # The ToolSearch guidance must rely on namespace-agnostic keyword queries so
+  # it works for both the plugin and manual installs (and keeps the no-mcp__
+  # rule above green).
+  for agent in "${AGENTS[@]}"; do
+    if grep -q "ToolSearch" "$AGENTS_DIR/${agent}.md" \
+       && ! grep -qiE "keyword query" "$AGENTS_DIR/${agent}.md"; then
+      echo "FAIL: $agent mentions ToolSearch but not the keyword-query approach"
+      return 1
+    fi
+  done
+}
