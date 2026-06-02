@@ -114,3 +114,66 @@ teardown() {
   [[ "$output" == *"gemini-challenger"* ]]
   [[ "$output" == *"CHALLENGE_PLAN"* ]]
 }
+
+# --- design-review.sh hook ---
+@test "design-review: non-design path exits 0 with no output" {
+  run bash -c 'echo "{\"tool_input\":{\"file_path\":\"src/foo.ts\"}}" | ./hooks/design-review.sh'
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+@test "design-review: empty file_path exits 0 with no output" {
+  run bash -c 'echo "{\"tool_input\":{\"file_path\":\"\"}}" | ./hooks/design-review.sh'
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+@test "design-review: first write of a design file dispatches both agents" {
+  SPEC="$BATS_TMPDIR/sd1-$$/docs/superpowers/specs/x-design.md"
+  mkdir -p "$(dirname "$SPEC")"
+  echo "# design v1" > "$SPEC"
+  run bash -c "echo '{\"tool_input\":{\"file_path\":\"${SPEC}\"}}' | ./hooks/design-review.sh"
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "PostToolUse"'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("gemini-validator")'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("VALIDATE_DESIGN")'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("gemini-challenger")'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("CHALLENGE_DESIGN")'
+}
+@test "design-review: writes advisory pending markers for both agents" {
+  SPEC="$BATS_TMPDIR/sd2-$$/docs/superpowers/specs/y-design.md"
+  mkdir -p "$(dirname "$SPEC")"
+  echo "# design" > "$SPEC"
+  run bash -c "echo '{\"tool_input\":{\"file_path\":\"${SPEC}\"}}' | ./hooks/design-review.sh"
+  [ "$status" -eq 0 ]
+  [ "$(cat "$CLAUDE_PLUGIN_DATA/pending/gemini-validator.mode")" = "advisory" ]
+  [ "$(cat "$CLAUDE_PLUGIN_DATA/pending/gemini-challenger.mode")" = "advisory" ]
+}
+@test "design-review: unchanged content does not re-fire (hash dedup)" {
+  SPEC="$BATS_TMPDIR/sd3-$$/docs/superpowers/specs/z-design.md"
+  mkdir -p "$(dirname "$SPEC")"
+  echo "# stable design" > "$SPEC"
+  run bash -c "echo '{\"tool_input\":{\"file_path\":\"${SPEC}\"}}' | ./hooks/design-review.sh"
+  [ "$status" -eq 0 ]
+  [ -n "$output" ]
+  run bash -c "echo '{\"tool_input\":{\"file_path\":\"${SPEC}\"}}' | ./hooks/design-review.sh"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+@test "design-review: materially changed content re-fires" {
+  SPEC="$BATS_TMPDIR/sd4-$$/docs/superpowers/specs/w-design.md"
+  mkdir -p "$(dirname "$SPEC")"
+  echo "# v1" > "$SPEC"
+  run bash -c "echo '{\"tool_input\":{\"file_path\":\"${SPEC}\"}}' | ./hooks/design-review.sh"
+  [ -n "$output" ]
+  echo "# v2 substantially different content here" > "$SPEC"
+  run bash -c "echo '{\"tool_input\":{\"file_path\":\"${SPEC}\"}}' | ./hooks/design-review.sh"
+  [ -n "$output" ]
+}
+@test "design-review: exits 0 silently when disabled" {
+  export CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1
+  SPEC="$BATS_TMPDIR/sd5-$$/docs/superpowers/specs/d-design.md"
+  mkdir -p "$(dirname "$SPEC")"
+  echo "# design" > "$SPEC"
+  run bash -c "echo '{\"tool_input\":{\"file_path\":\"${SPEC}\"}}' | ./hooks/design-review.sh"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
