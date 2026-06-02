@@ -23,6 +23,10 @@ teardown() {
   run bash -c 'source hooks/lib/common.sh; is_design_artifact "docs/superpowers/plans/2026-06-02-foo-plan.md"'
   [ "$status" -eq 0 ]
 }
+@test "is_design_artifact: matches a bare *-plan.md at any depth" {
+  run bash -c 'source hooks/lib/common.sh; is_design_artifact "subdir/my-plan.md"'
+  [ "$status" -eq 0 ]
+}
 @test "is_design_artifact: matches generic specs/ dir" {
   run bash -c 'source hooks/lib/common.sh; is_design_artifact "myproj/specs/auth.md"'
   [ "$status" -eq 0 ]
@@ -48,7 +52,8 @@ teardown() {
 
 # --- pending-mode markers ---
 @test "pending mode: write creates a marker file" {
-  bash -c 'source hooks/lib/common.sh; write_pending_mode gemini-challenger advisory'
+  run bash -c 'source hooks/lib/common.sh; write_pending_mode gemini-challenger advisory'
+  [ "$status" -eq 0 ]
   [ -f "$CLAUDE_PLUGIN_DATA/pending/gemini-challenger.mode" ]
   [ "$(cat "$CLAUDE_PLUGIN_DATA/pending/gemini-challenger.mode")" = "advisory" ]
 }
@@ -85,6 +90,11 @@ teardown() {
   S2=$(bash -c 'source hooks/lib/common.sh; design_seen_file "docs/superpowers/specs/x-design.md"')
   [ "$S1" = "$S2" ]
   [[ "$S1" == *"/design-review-seen/"* ]]
+}
+@test "design_seen_file: distinct paths produce distinct seen files" {
+  S1=$(bash -c 'source hooks/lib/common.sh; design_seen_file "docs/superpowers/specs/a-design.md"')
+  S2=$(bash -c 'source hooks/lib/common.sh; design_seen_file "docs/superpowers/specs/b-design.md"')
+  [ "$S1" != "$S2" ]
 }
 
 # --- directives ---

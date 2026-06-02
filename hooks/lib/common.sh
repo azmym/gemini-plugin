@@ -86,9 +86,10 @@ is_destructive_command() {
 }
 
 # Default design-artifact globs (colon-separated). Overridable via
-# CLAUDE_PLUGIN_GEMINI_DESIGN_GLOBS. Globs use a leading */ so they match a
-# path whether it is absolute or repo-relative. A path matches if it matches
-# ANY glob. In [[ $x == $glob ]], * matches across slashes.
+# CLAUDE_PLUGIN_GEMINI_DESIGN_GLOBS. Most globs start with */ so they match a
+# path whether it is absolute or repo-relative; the bare *-plan.md entry matches
+# a file ending in -plan.md at any depth (including the repo root). A path
+# matches if it matches ANY glob. In [[ $x == $glob ]], * matches across slashes.
 DEFAULT_DESIGN_GLOBS="*/superpowers/specs/*-design.md:*/superpowers/plans/*.md:*-plan.md:*/specs/*.md:*/plans/*.md:*/DESIGN.md:*/PLAN.md"
 
 is_design_artifact() {

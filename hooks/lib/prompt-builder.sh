@@ -98,6 +98,8 @@ Diff summary:
 ${diff_summary}"
 }
 
+# NOTE: intentionally does not use build_directive: this dispatches TWO agents
+# and is advisory, so it must omit build_directive's single-agent blocking footer.
 # Build a combined directive asking Claude to dispatch BOTH the validator and
 # the challenger on a design artifact as an ADVISORY pass.
 build_design_review_directive() {
