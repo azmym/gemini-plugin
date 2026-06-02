@@ -105,3 +105,26 @@ is_design_artifact() {
   done
   return 1
 }
+
+# Record the intended verdict-handling mode ("advisory"|"blocking") for an
+# agent about to be dispatched. The verdict-handler consumes it on SubagentStop.
+write_pending_mode() {
+  local agent="$1"
+  local mode="$2"
+  mkdir -p "$(data_dir)/pending"
+  echo "$mode" > "$(data_dir)/pending/${agent}.mode"
+}
+
+# Print and delete the pending mode for an agent. Prints "blocking" if no
+# marker exists, which preserves the original blocking plan/done-claim gates.
+read_consume_pending_mode() {
+  local agent="$1"
+  local f
+  f="$(data_dir)/pending/${agent}.mode"
+  if [ -f "$f" ]; then
+    cat "$f"
+    rm -f "$f"
+  else
+    echo "blocking"
+  fi
+}

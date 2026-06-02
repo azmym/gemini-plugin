@@ -45,3 +45,21 @@ teardown() {
   run bash -c 'source hooks/lib/common.sh; CLAUDE_PLUGIN_GEMINI_DESIGN_GLOBS="*/rfc/*.md" is_design_artifact "docs/superpowers/specs/x-design.md"'
   [ "$status" -ne 0 ]
 }
+
+# --- pending-mode markers ---
+@test "pending mode: write creates a marker file" {
+  bash -c 'source hooks/lib/common.sh; write_pending_mode gemini-challenger advisory'
+  [ -f "$CLAUDE_PLUGIN_DATA/pending/gemini-challenger.mode" ]
+  [ "$(cat "$CLAUDE_PLUGIN_DATA/pending/gemini-challenger.mode")" = "advisory" ]
+}
+@test "pending mode: read returns the mode and consumes the marker" {
+  bash -c 'source hooks/lib/common.sh; write_pending_mode gemini-validator advisory'
+  run bash -c 'source hooks/lib/common.sh; read_consume_pending_mode gemini-validator'
+  [ "$status" -eq 0 ]
+  [ "$output" = "advisory" ]
+  [ ! -f "$CLAUDE_PLUGIN_DATA/pending/gemini-validator.mode" ]
+}
+@test "pending mode: default is blocking when no marker exists" {
+  run bash -c 'source hooks/lib/common.sh; read_consume_pending_mode gemini-validator'
+  [ "$output" = "blocking" ]
+}
