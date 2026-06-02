@@ -18,6 +18,24 @@ IMPORTANT: Block until the subagent returns its structured JSON verdict. If verd
 EOF
 }
 
+# Like build_directive, but for an ADVISORY consult: surface findings without
+# blocking, instead of build_directive's "Block until ... address the gaps"
+# footer. Use for hook-dispatched agents whose verdict must not halt the flow.
+build_advisory_directive() {
+  local agent="$1"
+  local task="$2"
+  local context="$3"
+
+  cat <<EOF
+[gemini-plugin] Spawning @agent-gemini-plugin:${agent} with task=${task}.
+
+Context for the subagent:
+${context}
+
+NOTE: This consult is ADVISORY. Surface the subagent's findings to the user, but do not block: continue regardless of the verdict.
+EOF
+}
+
 # Build directive for risk map generation.
 build_risk_map_directive() {
   local repo_root="$1"
@@ -131,7 +149,7 @@ EOF
 build_plan_challenge_directive() {
   local plan_text="$1"
 
-  build_directive "gemini-challenger" "CHALLENGE_PLAN" \
+  build_advisory_directive "gemini-challenger" "CHALLENGE_PLAN" \
     "Challenge this plan (ADVISORY, non-blocking): propose at least 2 alternative approaches and at least 1 reason this plan may be wrong.
 
 Plan:

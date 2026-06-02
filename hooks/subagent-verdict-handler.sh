@@ -10,12 +10,13 @@ DATA="$(data_dir)"
 
 INPUT=$(cat)
 AGENT=$(echo "$INPUT" | jq -r '.agent_type')
-MODE=$(read_consume_pending_mode "$AGENT")
 TRANSCRIPT=$(echo "$INPUT" | jq -r '.transcript_path // empty')
 
 if [ -z "$TRANSCRIPT" ] || [ ! -f "$TRANSCRIPT" ]; then
   exit 0
 fi
+
+MODE=$(read_consume_pending_mode "$AGENT")
 
 # Extract the agent's final JSON message (look for structured output in last 50 lines)
 VERDICT_JSON=$(tail -50 "$TRANSCRIPT" | jq -rs '

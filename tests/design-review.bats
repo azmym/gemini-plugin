@@ -114,6 +114,12 @@ teardown() {
   [[ "$output" == *"gemini-challenger"* ]]
   [[ "$output" == *"CHALLENGE_PLAN"* ]]
 }
+@test "build_plan_challenge_directive: advisory, omits the blocking footer" {
+  run bash -c 'source hooks/lib/common.sh; source hooks/lib/prompt-builder.sh; build_plan_challenge_directive "Step 1: do X."'
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"Block until"* ]]
+  [[ "$output" == *"ADVISORY"* ]]
+}
 
 # --- design-review.sh hook ---
 @test "design-review: non-design path exits 0 with no output" {
@@ -163,6 +169,7 @@ teardown() {
   mkdir -p "$(dirname "$SPEC")"
   echo "# v1" > "$SPEC"
   run bash -c "echo '{\"tool_input\":{\"file_path\":\"${SPEC}\"}}' | ./hooks/design-review.sh"
+  [ "$status" -eq 0 ]
   [ -n "$output" ]
   echo "# v2 substantially different content here" > "$SPEC"
   run bash -c "echo '{\"tool_input\":{\"file_path\":\"${SPEC}\"}}' | ./hooks/design-review.sh"

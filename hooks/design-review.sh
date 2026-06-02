@@ -36,13 +36,13 @@ write_pending_mode "gemini-validator" "advisory"
 write_pending_mode "gemini-challenger" "advisory"
 DIRECTIVE=$(build_design_review_directive "$FILE_PATH" "$HISTORY")
 
-mkdir -p "$(dirname "$SEEN_FILE")"
-echo "$NEW_HASH" > "$SEEN_FILE"
-
 jq -n --arg ctx "$DIRECTIVE" '{
   hookSpecificOutput: {
     hookEventName: "PostToolUse",
     additionalContext: $ctx
   }
 }'
+
+mkdir -p "$(dirname "$SEEN_FILE")"
+echo "$NEW_HASH" > "$SEEN_FILE"
 exit 0
