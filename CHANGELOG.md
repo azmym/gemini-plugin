@@ -4,6 +4,17 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-06-02
+
+### Added
+
+- **Automatic design-review pass.** Whenever a design/plan artifact is written (a `*-design.md` spec, a `*-plan.md`, or a file under a `specs/`/`plans/` directory) via a new `PostToolUse(Write|Edit)` hook, or when native plan mode exits, the plugin asks Claude to dispatch gemini-validator (VALIDATE_DESIGN) and gemini-challenger (CHALLENGE_DESIGN) over it. The pass is advisory (findings surface but never block), deduped by file content hash so cosmetic re-edits do not re-fire, exempt from the manual one-consult-per-turn cap (it is part of the uncounted hook channel), and silenced by the existing `CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS` / `brainstorm.off` kill switch. The artifact globs are overridable via `CLAUDE_PLUGIN_GEMINI_DESIGN_GLOBS`.
+
+### Changed
+
+- **Verdict handling is now per-dispatch advisory-or-blocking.** `subagent-verdict-handler.sh` reads and consumes a per-agent "pending mode" marker written by the dispatching hook. A `fail`/`block` verdict blocks (exit 2) only when the marker is `blocking` (the default when no marker exists, which preserves the plan-validator and done-claim gates); the design-review pass writes `advisory` markers so its findings never halt the flow.
+- **Native plan-mode exit now also runs an advisory challenger** alongside the existing blocking plan-validator (the validator gate is unchanged).
+
 ## [0.5.1] - 2026-06-01
 
 ### Fixed
