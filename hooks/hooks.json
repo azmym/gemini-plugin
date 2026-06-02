@@ -29,6 +29,14 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/design-review.sh", "async": false }
+        ]
+      }
+    ],
     "PreCompact": [
       {
         "hooks": [
