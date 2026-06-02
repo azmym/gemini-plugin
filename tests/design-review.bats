@@ -63,3 +63,26 @@ teardown() {
   run bash -c 'source hooks/lib/common.sh; read_consume_pending_mode gemini-validator'
   [ "$output" = "blocking" ]
 }
+
+# --- design seen-hash ---
+@test "file_content_hash: returns a hash for an existing file" {
+  F="$BATS_TMPDIR/h-$$.txt"
+  echo "hello" > "$F"
+  run bash -c "source hooks/lib/common.sh; file_content_hash '$F'"
+  [ "$status" -eq 0 ]
+  [ -n "$output" ]
+}
+@test "file_content_hash: differs when content changes" {
+  F="$BATS_TMPDIR/h2-$$.txt"
+  echo "v1" > "$F"
+  H1=$(bash -c "source hooks/lib/common.sh; file_content_hash '$F'")
+  echo "v2" > "$F"
+  H2=$(bash -c "source hooks/lib/common.sh; file_content_hash '$F'")
+  [ "$H1" != "$H2" ]
+}
+@test "design_seen_file: path-keyed, stable for same path" {
+  S1=$(bash -c 'source hooks/lib/common.sh; design_seen_file "docs/superpowers/specs/x-design.md"')
+  S2=$(bash -c 'source hooks/lib/common.sh; design_seen_file "docs/superpowers/specs/x-design.md"')
+  [ "$S1" = "$S2" ]
+  [[ "$S1" == *"/design-review-seen/"* ]]
+}

@@ -128,3 +128,16 @@ read_consume_pending_mode() {
     echo "blocking"
   fi
 }
+
+# SHA-256 of a file's contents (first field only). Empty if unreadable.
+file_content_hash() {
+  shasum -a 256 "$1" 2>/dev/null | cut -d' ' -f1
+}
+
+# Path-keyed file storing the last-reviewed content hash for a design artifact.
+design_seen_file() {
+  local path="$1"
+  local pathhash
+  pathhash=$(echo -n "$path" | shasum -a 256 | cut -c1-12)
+  echo "$(data_dir)/design-review-seen/${pathhash}.sha"
+}
