@@ -84,3 +84,24 @@ is_destructive_command() {
   local cmd="$1"
   echo "$cmd" | grep -qE '\brm\s+-[a-zA-Z]*[rRf]|\bgit\s+reset\s+--hard\b|\bgit\s+push\s+[^|;]*--force\b|\bDROP\s+(TABLE|DATABASE|SCHEMA)\b|\bTRUNCATE\s+TABLE\b|\bdd\s+if=|>\s*/dev/sd[a-z]'
 }
+
+# Default design-artifact globs (colon-separated). Overridable via
+# CLAUDE_PLUGIN_GEMINI_DESIGN_GLOBS. Globs use a leading */ so they match a
+# path whether it is absolute or repo-relative. A path matches if it matches
+# ANY glob. In [[ $x == $glob ]], * matches across slashes.
+DEFAULT_DESIGN_GLOBS="*/superpowers/specs/*-design.md:*/superpowers/plans/*.md:*-plan.md:*/specs/*.md:*/plans/*.md:*/DESIGN.md:*/PLAN.md"
+
+is_design_artifact() {
+  local path="$1"
+  local globs="${CLAUDE_PLUGIN_GEMINI_DESIGN_GLOBS:-$DEFAULT_DESIGN_GLOBS}"
+  local IFS=':'
+  local g
+  for g in $globs; do
+    [ -z "$g" ] && continue
+    # shellcheck disable=SC2053
+    if [[ "$path" == $g ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
