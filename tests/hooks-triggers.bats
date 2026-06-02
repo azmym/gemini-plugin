@@ -170,6 +170,19 @@ teardown() {
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
+@test "plan-complete: also dispatches advisory challenger alongside blocking validator" {
+  run bash -c 'echo "{\"tool_input\":{\"plan\":\"Step 1: do X.\"}}" | ./hooks/plan-complete.sh'
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("VALIDATE_PLAN")'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("gemini-challenger")'
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("CHALLENGE_PLAN")'
+}
+@test "plan-complete: marks challenger advisory and validator blocking" {
+  run bash -c 'echo "{\"tool_input\":{\"plan\":\"Step 1: do X.\"}}" | ./hooks/plan-complete.sh'
+  [ "$status" -eq 0 ]
+  [ "$(cat "$CLAUDE_PLUGIN_DATA/pending/gemini-challenger.mode")" = "advisory" ]
+  [ "$(cat "$CLAUDE_PLUGIN_DATA/pending/gemini-validator.mode")" = "blocking" ]
+}
 
 # --- stop-done-claim ---
 # Uses exit 0 + JSON with decision=block + additionalContext.

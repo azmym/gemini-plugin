@@ -29,8 +29,17 @@ fi
 
 HISTORY=$(get_plan_history "VALIDATE_PLAN" 3)
 DIRECTIVE=$(build_plan_validation_directive "$PLAN_TEXT" "$HISTORY")
+CHALLENGE=$(build_plan_challenge_directive "$PLAN_TEXT")
 
-jq -n --arg ctx "$DIRECTIVE" '{
+# Validator keeps its blocking gate; challenger runs advisory alongside it.
+write_pending_mode "gemini-validator" "blocking"
+write_pending_mode "gemini-challenger" "advisory"
+
+COMBINED="${DIRECTIVE}
+
+${CHALLENGE}"
+
+jq -n --arg ctx "$COMBINED" '{
   hookSpecificOutput: {
     hookEventName: "PreToolUse",
     additionalContext: $ctx
