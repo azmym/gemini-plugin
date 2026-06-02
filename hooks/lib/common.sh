@@ -84,3 +84,61 @@ is_destructive_command() {
   local cmd="$1"
   echo "$cmd" | grep -qE '\brm\s+-[a-zA-Z]*[rRf]|\bgit\s+reset\s+--hard\b|\bgit\s+push\s+[^|;]*--force\b|\bDROP\s+(TABLE|DATABASE|SCHEMA)\b|\bTRUNCATE\s+TABLE\b|\bdd\s+if=|>\s*/dev/sd[a-z]'
 }
+
+# Default design-artifact globs (colon-separated). Overridable via
+# CLAUDE_PLUGIN_GEMINI_DESIGN_GLOBS. Most globs start with */ so they match a
+# path whether it is absolute or repo-relative; the bare *-plan.md entry matches
+# a file ending in -plan.md at any depth (including the repo root). A path
+# matches if it matches ANY glob. In [[ $x == $glob ]], * matches across slashes.
+DEFAULT_DESIGN_GLOBS="*/superpowers/specs/*-design.md:*/superpowers/plans/*.md:*-plan.md:*/specs/*.md:*/plans/*.md:*/DESIGN.md:*/PLAN.md"
+
+is_design_artifact() {
+  local path="$1"
+  local globs="${CLAUDE_PLUGIN_GEMINI_DESIGN_GLOBS:-$DEFAULT_DESIGN_GLOBS}"
+  local IFS=':'
+  local g
+  for g in $globs; do
+    [ -z "$g" ] && continue
+    # shellcheck disable=SC2053
+    if [[ "$path" == $g ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Record the intended verdict-handling mode ("advisory"|"blocking") for an
+# agent about to be dispatched. The verdict-handler consumes it on SubagentStop.
+write_pending_mode() {
+  local agent="$1"
+  local mode="$2"
+  mkdir -p "$(data_dir)/pending"
+  echo "$mode" > "$(data_dir)/pending/${agent}.mode"
+}
+
+# Print and delete the pending mode for an agent. Prints "blocking" if no
+# marker exists, which preserves the original blocking plan/done-claim gates.
+read_consume_pending_mode() {
+  local agent="$1"
+  local f
+  f="$(data_dir)/pending/${agent}.mode"
+  if [ -f "$f" ]; then
+    cat "$f"
+    rm -f "$f"
+  else
+    echo "blocking"
+  fi
+}
+
+# SHA-256 of a file's contents (first field only). Empty if unreadable.
+file_content_hash() {
+  shasum -a 256 "$1" 2>/dev/null | cut -d' ' -f1
+}
+
+# Path-keyed file storing the last-reviewed content hash for a design artifact.
+design_seen_file() {
+  local path="$1"
+  local pathhash
+  pathhash=$(echo -n "$path" | shasum -a 256 | cut -c1-12)
+  echo "$(data_dir)/design-review-seen/${pathhash}.sha"
+}

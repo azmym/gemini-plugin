@@ -18,6 +18,24 @@ IMPORTANT: Block until the subagent returns its structured JSON verdict. If verd
 EOF
 }
 
+# Like build_directive, but for an ADVISORY consult: surface findings without
+# blocking, instead of build_directive's "Block until ... address the gaps"
+# footer. Use for hook-dispatched agents whose verdict must not halt the flow.
+build_advisory_directive() {
+  local agent="$1"
+  local task="$2"
+  local context="$3"
+
+  cat <<EOF
+[gemini-plugin] Spawning @agent-gemini-plugin:${agent} with task=${task}.
+
+Context for the subagent:
+${context}
+
+NOTE: This consult is ADVISORY. Surface the subagent's findings to the user, but do not block: continue regardless of the verdict.
+EOF
+}
+
 # Build directive for risk map generation.
 build_risk_map_directive() {
   local repo_root="$1"
@@ -96,4 +114,44 @@ ${final_claim}
 
 Diff summary:
 ${diff_summary}"
+}
+
+# NOTE: intentionally does not use build_directive: this dispatches TWO agents
+# and is advisory, so it must omit build_directive's single-agent blocking footer.
+# Build a combined directive asking Claude to dispatch BOTH the validator and
+# the challenger on a design artifact as an ADVISORY pass.
+build_design_review_directive() {
+  local file_path="$1"
+  local history="$2"
+
+  cat <<EOF
+[gemini-plugin] A design/plan artifact was written: ${file_path}
+Dispatch BOTH of these Gemini agents as an ADVISORY design-review pass:
+
+1. @agent-gemini-plugin:gemini-validator with task=VALIDATE_DESIGN
+   Validate this design against the problem it claims to solve. Flag gaps,
+   hallucinations, and missed acceptance criteria. Return structured JSON.
+
+2. @agent-gemini-plugin:gemini-challenger with task=CHALLENGE_DESIGN
+   Challenge this design: propose at least 2 alternative approaches and at
+   least 1 reason this design may be wrong. Return structured JSON.
+
+Design file to review: ${file_path}
+Recent design-review history (do not re-raise already-addressed points):
+${history}
+
+This pass is ADVISORY: surface the findings to the user; it does not block.
+EOF
+}
+
+# Build an advisory challenger directive to run alongside the blocking plan
+# validator at ExitPlanMode.
+build_plan_challenge_directive() {
+  local plan_text="$1"
+
+  build_advisory_directive "gemini-challenger" "CHALLENGE_PLAN" \
+    "Challenge this plan (ADVISORY, non-blocking): propose at least 2 alternative approaches and at least 1 reason this plan may be wrong.
+
+Plan:
+${plan_text}"
 }

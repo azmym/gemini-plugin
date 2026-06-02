@@ -16,6 +16,8 @@ if [ -z "$TRANSCRIPT" ] || [ ! -f "$TRANSCRIPT" ]; then
   exit 0
 fi
 
+MODE=$(read_consume_pending_mode "$AGENT")
+
 # Extract the agent's final JSON message (look for structured output in last 50 lines)
 VERDICT_JSON=$(tail -50 "$TRANSCRIPT" | jq -rs '
   [.[] | select(.type=="assistant")] | last
@@ -43,10 +45,13 @@ echo "{\"task\":\"$(echo "$INPUT" | jq -r '.task // "unknown"')\",\"agent\":\"${
 
 if [ "$VERDICT" = "fail" ] || [ "$VERDICT" = "block" ]; then
   cat >&2 <<EOF
-[gemini-plugin] ${AGENT} verdict: ${VERDICT}
+[gemini-plugin] ${AGENT} verdict: ${VERDICT} (${MODE})
 Issues to address before continuing:
 - ${GAPS}
 EOF
+  if [ "$MODE" = "advisory" ]; then
+    exit 0
+  fi
   exit 2
 fi
 exit 0
