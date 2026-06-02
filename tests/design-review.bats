@@ -86,3 +86,21 @@ teardown() {
   [ "$S1" = "$S2" ]
   [[ "$S1" == *"/design-review-seen/"* ]]
 }
+
+# --- directives ---
+@test "build_design_review_directive: names both agents and both tasks" {
+  run bash -c 'source hooks/lib/common.sh; source hooks/lib/prompt-builder.sh; build_design_review_directive "docs/superpowers/specs/x-design.md" "[]"'
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"gemini-validator"* ]]
+  [[ "$output" == *"VALIDATE_DESIGN"* ]]
+  [[ "$output" == *"gemini-challenger"* ]]
+  [[ "$output" == *"CHALLENGE_DESIGN"* ]]
+  [[ "$output" == *"docs/superpowers/specs/x-design.md"* ]]
+  [[ "$output" == *"ADVISORY"* ]]
+}
+@test "build_plan_challenge_directive: challenger + CHALLENGE_PLAN" {
+  run bash -c 'source hooks/lib/common.sh; source hooks/lib/prompt-builder.sh; build_plan_challenge_directive "Step 1: do X."'
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"gemini-challenger"* ]]
+  [[ "$output" == *"CHALLENGE_PLAN"* ]]
+}

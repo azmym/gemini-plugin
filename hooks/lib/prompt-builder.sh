@@ -97,3 +97,41 @@ ${final_claim}
 Diff summary:
 ${diff_summary}"
 }
+
+# Build a combined directive asking Claude to dispatch BOTH the validator and
+# the challenger on a design artifact as an ADVISORY pass.
+build_design_review_directive() {
+  local file_path="$1"
+  local history="$2"
+
+  cat <<EOF
+[gemini-plugin] A design/plan artifact was written: ${file_path}
+Dispatch BOTH of these Gemini agents as an ADVISORY design-review pass:
+
+1. @agent-gemini-plugin:gemini-validator with task=VALIDATE_DESIGN
+   Validate this design against the problem it claims to solve. Flag gaps,
+   hallucinations, and missed acceptance criteria. Return structured JSON.
+
+2. @agent-gemini-plugin:gemini-challenger with task=CHALLENGE_DESIGN
+   Challenge this design: propose at least 2 alternative approaches and at
+   least 1 reason this design may be wrong. Return structured JSON.
+
+Design file to review: ${file_path}
+Recent design-review history (do not re-raise already-addressed points):
+${history}
+
+This pass is ADVISORY: surface the findings to the user; it does not block.
+EOF
+}
+
+# Build an advisory challenger directive to run alongside the blocking plan
+# validator at ExitPlanMode.
+build_plan_challenge_directive() {
+  local plan_text="$1"
+
+  build_directive "gemini-challenger" "CHALLENGE_PLAN" \
+    "Challenge this plan (ADVISORY, non-blocking): propose at least 2 alternative approaches and at least 1 reason this plan may be wrong.
+
+Plan:
+${plan_text}"
+}
