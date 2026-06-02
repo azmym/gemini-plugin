@@ -232,6 +232,30 @@ teardown() {
   run bash -c "echo '{\"agent_type\":\"gemini-reviewer\",\"transcript_path\":\"${TRANSCRIPT}\"}' | ./hooks/subagent-verdict-handler.sh"
   [ "$status" -eq 0 ]
 }
+@test "verdict-handler: advisory marker demotes fail to non-blocking (exit 0)" {
+  TRANSCRIPT="$BATS_TMPDIR/transcript-adv-$$.jsonl"
+  echo '{"type":"assistant","message":{"content":[{"text":"{\"verdict\":\"fail\",\"gaps\":[\"a gap\"]}"}]}}' > "$TRANSCRIPT"
+  mkdir -p "$CLAUDE_PLUGIN_DATA/pending"
+  echo "advisory" > "$CLAUDE_PLUGIN_DATA/pending/gemini-validator.mode"
+  run bash -c "echo '{\"agent_type\":\"gemini-validator\",\"transcript_path\":\"${TRANSCRIPT}\"}' | ./hooks/subagent-verdict-handler.sh"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"a gap"* ]]
+  [ ! -f "$CLAUDE_PLUGIN_DATA/pending/gemini-validator.mode" ]
+}
+@test "verdict-handler: blocking marker keeps fail blocking (exit 2)" {
+  TRANSCRIPT="$BATS_TMPDIR/transcript-blk-$$.jsonl"
+  echo '{"type":"assistant","message":{"content":[{"text":"{\"verdict\":\"fail\",\"gaps\":[\"a gap\"]}"}]}}' > "$TRANSCRIPT"
+  mkdir -p "$CLAUDE_PLUGIN_DATA/pending"
+  echo "blocking" > "$CLAUDE_PLUGIN_DATA/pending/gemini-validator.mode"
+  run bash -c "echo '{\"agent_type\":\"gemini-validator\",\"transcript_path\":\"${TRANSCRIPT}\"}' | ./hooks/subagent-verdict-handler.sh"
+  [ "$status" -eq 2 ]
+}
+@test "verdict-handler: no marker defaults to blocking (exit 2), no regression" {
+  TRANSCRIPT="$BATS_TMPDIR/transcript-def-$$.jsonl"
+  echo '{"type":"assistant","message":{"content":[{"text":"{\"verdict\":\"fail\",\"gaps\":[\"a gap\"]}"}]}}' > "$TRANSCRIPT"
+  run bash -c "echo '{\"agent_type\":\"gemini-validator\",\"transcript_path\":\"${TRANSCRIPT}\"}' | ./hooks/subagent-verdict-handler.sh"
+  [ "$status" -eq 2 ]
+}
 
 # --- plugin disable ---
 

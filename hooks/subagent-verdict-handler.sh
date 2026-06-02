@@ -10,6 +10,7 @@ DATA="$(data_dir)"
 
 INPUT=$(cat)
 AGENT=$(echo "$INPUT" | jq -r '.agent_type')
+MODE=$(read_consume_pending_mode "$AGENT")
 TRANSCRIPT=$(echo "$INPUT" | jq -r '.transcript_path // empty')
 
 if [ -z "$TRANSCRIPT" ] || [ ! -f "$TRANSCRIPT" ]; then
@@ -43,10 +44,13 @@ echo "{\"task\":\"$(echo "$INPUT" | jq -r '.task // "unknown"')\",\"agent\":\"${
 
 if [ "$VERDICT" = "fail" ] || [ "$VERDICT" = "block" ]; then
   cat >&2 <<EOF
-[gemini-plugin] ${AGENT} verdict: ${VERDICT}
+[gemini-plugin] ${AGENT} verdict: ${VERDICT} (${MODE})
 Issues to address before continuing:
 - ${GAPS}
 EOF
+  if [ "$MODE" = "advisory" ]; then
+    exit 0
+  fi
   exit 2
 fi
 exit 0
