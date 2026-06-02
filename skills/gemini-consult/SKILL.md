@@ -53,6 +53,19 @@ missing Gemini tool, do NOT assume the server is down: first run
 `/gemini-plugin:gemini-doctor`. If doctor's check 2 passes but check 3 fails,
 the session is stale (restart Claude Code); if both pass, retry the dispatch.
 
+## The automatic design-review pass
+
+Separately from the manual consults this rule governs, the plugin runs an
+AUTOMATIC, advisory design-review pass via hooks: whenever a design/plan
+artifact is written (a `*-design.md` spec, a `*-plan.md`, or a file under a
+`specs/`/`plans/` dir) or native plan mode exits, the plugin asks you to
+dispatch gemini-validator and gemini-challenger over it. That pass is part of
+the uncounted hook channel: it does NOT count against the one-consult-per-turn
+cap, and it is advisory (findings surface but never block). It is silenced by
+the same `CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1` / `brainstorm.off` kill switch
+as every other hook. The blocking validator at native plan-mode exit is
+unchanged; only the added challenger and the file-artifact pass are advisory.
+
 ## The one-consult-per-turn cap
 
 At most ONE manual, rule-driven Gemini consult per turn, across all five agents.

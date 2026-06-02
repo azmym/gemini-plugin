@@ -9,6 +9,7 @@ The gemini-plugin is loaded. Five subagents assist you:
 | gemini-researcher | Search-grounded facts with citations; never opines without a URL | Hook (UserPromptSubmit) or /gemini-plugin:gemini-research |
 | gemini-summarizer | Compresses session state; writes risk maps at SessionStart | Hook (SessionStart, PreCompact) |
 | gemini-reviewer | Generalist diff/PR review: security, threading, version drift, docs, dead code | /gemini-plugin:gemini-consult rule (manual dispatch) |
+| **design-review pass** | **Advisory:** when a design/plan artifact is written or native plan mode exits, gemini-validator and gemini-challenger review it. Never blocks; silenced by `CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1`. | Hook (PostToolUse Write\|Edit, ExitPlanMode) |
 
 ### Always reach for Gemini when
 
