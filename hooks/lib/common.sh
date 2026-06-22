@@ -135,6 +135,39 @@ file_content_hash() {
   shasum -a 256 "$1" 2>/dev/null | cut -d' ' -f1
 }
 
+# Build a git diff summary for done-claim evidence that survives the cases the
+# old `git diff --stat HEAD~1` got wrong:
+#   - unborn HEAD (first commit not yet made): show staged work
+#   - root commit (no parent): HEAD~1 errors -> fall back to the commit itself
+#   - multi-commit task: show the WHOLE branch since it forked from the default
+#     branch, not just the last commit
+#   - uncommitted work: HEAD~1 ignores the working tree entirely
+# Prints "" only when there is genuinely nothing to show; callers substitute a
+# placeholder. Default branch is detected as origin/main, main, or master.
+build_diff_summary() {
+  # No commits yet: show staged work against the empty tree.
+  if ! git rev-parse --verify -q HEAD >/dev/null 2>&1; then
+    git diff --cached --stat 2>/dev/null | tail -40
+    return
+  fi
+  local uncommitted base committed
+  uncommitted=$(git diff --stat HEAD 2>/dev/null | tail -40)
+  # Prefer the whole branch since it forked from the default branch (captures
+  # multi-commit tasks); fall back to HEAD~1, then to the single commit.
+  base=$(git merge-base HEAD origin/main 2>/dev/null \
+    || git merge-base HEAD main 2>/dev/null \
+    || git merge-base HEAD master 2>/dev/null)
+  if [ -n "$base" ] && [ "$base" != "$(git rev-parse HEAD)" ]; then
+    committed=$(git diff --stat "${base}..HEAD" 2>/dev/null | tail -40)
+  elif git rev-parse --verify -q HEAD~1 >/dev/null 2>&1; then
+    committed=$(git diff --stat HEAD~1..HEAD 2>/dev/null | tail -40)
+  else
+    committed=$(git show --stat --oneline HEAD 2>/dev/null | tail -40)
+  fi
+  [ -n "$uncommitted" ] && printf 'Uncommitted changes (vs HEAD):\n%s\n\n' "$uncommitted"
+  printf 'Committed changes on this branch:\n%s' "${committed:-(none)}"
+}
+
 # Path-keyed file storing the last-reviewed content hash for a design artifact.
 design_seen_file() {
   local path="$1"
