@@ -4,6 +4,12 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-06-22
+
+### Fixed
+
+- **Done-claim validation received empty or misleading diff evidence.** `stop-done-claim.sh` summarized the work with `git diff --stat HEAD~1`, which produced nothing usable in four common cases: an unborn HEAD (the first commit not yet made), a root commit (no parent, so `HEAD~1` errors out), a multi-commit task (only the most recent commit was shown, hiding the rest of the work), and uncommitted changes (`HEAD~1` ignores the working tree entirely). In each case the gemini-validator was handed weak evidence to audit the "done" claim against. Fixed by adding `build_diff_summary()` to `hooks/lib/common.sh`: it shows staged work on an unborn HEAD, uncommitted changes against HEAD, and the whole branch since it forked from the default branch (detected as `origin/main`, `main`, or `master`), falling back to `HEAD~1` and then the single commit when no fork point exists.
+
 ## [0.6.0] - 2026-06-02
 
 ### Added
