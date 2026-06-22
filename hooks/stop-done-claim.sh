@@ -33,7 +33,8 @@ if ! echo "$ASSISTANT_MESSAGE" | grep -qiE '\b(done|completed|finished|ready|fix
   exit 0
 fi
 
-DIFF_SUMMARY=$(git diff --stat HEAD~1 2>/dev/null | tail -20 || echo "(no git diff available)")
+DIFF_SUMMARY=$(build_diff_summary)
+[ -z "$DIFF_SUMMARY" ] && DIFF_SUMMARY="(no git diff available)"
 DIRECTIVE=$(build_done_claim_directive "$ORIGINAL_ASK" "$ASSISTANT_MESSAGE" "$DIFF_SUMMARY")
 REASON="gemini-plugin: validating done-claim against the original ask before stopping. @agent-gemini-plugin:gemini-validator will return a structured verdict."
 
