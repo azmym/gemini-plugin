@@ -4,6 +4,10 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+### Fixed
+
+- **The risk map was silently never built in any sizeable repo.** `session-start-risk-map.sh` piped `find` into `head -200` to cap the directory tree. `head` closes the pipe as soon as it has its 200 lines, so `find` dies of SIGPIPE (exit 141) whenever more files match; `set -o pipefail` promoted that to the pipeline's status, `set -e` fired the ERR trap, and the hook exited 0 having emitted no directive. Because the trap converted the crash into a clean skip, there was no error to notice: the risk map was simply absent, in exactly the large repos it is most useful for. Fixed by scoping `set +o pipefail` to that one pipeline, which the surrounding command substitution already isolates in a subshell. Added a bats regression test that builds a tree large enough to overflow the 64KB pipe buffer, the condition the existing session-start tests could never hit because this repo contains no matching source files.
+
 ## [0.6.1] - 2026-06-22
 
 ### Fixed
