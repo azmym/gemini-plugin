@@ -37,7 +37,12 @@ if [ -f "$RISK_MAP" ]; then
 fi
 
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
-TREE=$(find "$REPO_ROOT" -maxdepth 4 -type f \
+# `head -200` closes the pipe once it has its 200 lines, so `find` dies of
+# SIGPIPE (141) in any tree with more matches. Under `pipefail` that becomes
+# the pipeline's status, `set -e` fires the ERR trap, and the risk map is
+# silently skipped. Disable pipefail for this pipeline only: the subshell
+# from command substitution keeps the parent shell's setting intact.
+TREE=$(set +o pipefail; find "$REPO_ROOT" -maxdepth 4 -type f \
   \( -name "*.go" -o -name "*.py" -o -name "*.ts" -o -name "*.js" \
      -o -name "*.java" -o -name "*.kt" \) 2>/dev/null \
   | head -200 \
