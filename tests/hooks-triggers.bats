@@ -50,6 +50,26 @@ teardown() {
   [ "$status" -eq 0 ]
 }
 
+@test "session-start: emits directive in a large tree (SIGPIPE regression)" {
+  # `head -200` closes the pipe early, so `find` dies of SIGPIPE (141).
+  # Under pipefail that became the pipeline's exit status and the ERR trap
+  # swallowed the run, so no directive was ever emitted in any sizeable
+  # repo. This repo has 0 matching source files, so the bug was invisible
+  # to every other test here.
+  #
+  # File count and name length both matter: `find` only gets SIGPIPE if it
+  # is still writing when `head` exits, so the output must exceed the 64KB
+  # pipe buffer. 250 short paths fit and pass even when broken; 1000 long
+  # ones do not.
+  BIG="$BATS_TMPDIR/bigrepo-$$"
+  mkdir -p "$BIG"
+  for i in $(seq 1 1000); do : > "$BIG/file_with_a_reasonably_long_name_$i.ts"; done
+  run bash -c "cd '$BIG' && echo '{}' | '$BATS_TEST_DIRNAME/../hooks/session-start-risk-map.sh'"
+  rm -rf "$BIG"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"BUILD_RISK_MAP"* ]]
+}
+
 @test "session-start: does not crash when CLAUDE_PLUGIN_DATA is unset" {
   # Regression test for the "Failed with non-blocking status code: No
   # stderr output" error: the script must not crash with set -u when
