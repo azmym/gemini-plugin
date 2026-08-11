@@ -77,7 +77,6 @@ graph LR
 | Blocking | Yes (exit 2) |
 
 **Destructive patterns matched (narrow on purpose to keep false-positive rate low):**
-- `rm -[rRf]` flag combinations
 - `git reset --hard`
 - `git push ... --force` (any token order before `--force`)
 - `DROP TABLE`, `DROP DATABASE`, `DROP SCHEMA`
@@ -88,6 +87,16 @@ graph LR
 Patterns that look destructive but pass through (intentional false-positive guards):
 - `git pull --force`, `npm install --force` (not destructive)
 - Commit messages or text containing the word "drop" out of context
+- Any `rm` invocation, including `rm -rf`. Deliberately unguarded: it was the
+  highest-volume pattern and almost none of its hits were the dangerous case
+  (scratch dirs under `/tmp`, `rm -rf node_modules`, or a command that merely
+  quoted the flags). Because the hook answers with a hard deny, each hit cost a
+  turn and the usual response was to reword the command until the regex stopped
+  matching, which bought no safety.
+
+**Known limitation:** the gate is a `grep` over the raw command string, so it
+cannot distinguish executing an operation from naming one. A read-only
+`grep -r "TRUNCATE TABLE" migrations/` is still denied.
 
 **Stdin JSON:** `{"tool_input": {"command": "the bash command"}}`
 
