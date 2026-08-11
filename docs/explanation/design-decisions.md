@@ -118,9 +118,9 @@ The plugin and its marketplace catalog live in the same git repository (source: 
 
 **Alternative considered:** multi-plugin marketplace with plugins/ subdirectory. Would support sibling plugins later, but premature for a single plugin.
 
-## Why pin gemini-mcp to v0.2.0?
+## Why pin gemini-mcp to a tag?
 
-The plugin manifest pins `gemini-mcp@v0.2.0` rather than floating on `main`.
+The plugin manifest pins `gemini-mcp@v0.2.1` rather than floating on `main`.
 
 **Rationale:** gemini-mcp is actively developed. Floating on main means a breaking change upstream silently breaks the plugin for all users. Pinning ensures stability; the gemini-plugin version bump is the explicit upgrade moment.
 
