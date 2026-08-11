@@ -37,6 +37,6 @@ Plugin installs via marketplace
 │  6 commands  - manual slash invocation      │
 │  1 rule      - session-level guidance       │
 │                                             │
-│  MCP: gemini-mcp (13 tools, pinned v0.2.0) │
+│  MCP: gemini-mcp (13 tools, pinned v0.2.1) │
 └─────────────────────────────────────────────┘
 ```

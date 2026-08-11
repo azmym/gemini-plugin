@@ -4,11 +4,15 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-11
+
 ### Changed
 
 - **`rm` is no longer a destructive pattern.** `is_destructive_command` matched `rm -[rRf]`, which made it the highest-volume trigger in the set while almost none of its hits were the case worth guarding: scratch directories under `/tmp`, `rm -rf node_modules`, and, because the gate is a plain `grep` over the raw command string with no notion of quoting, every command that merely *named* the flags (`echo "never rm -rf the repo"`, a `grep` for the pattern, a bats fixture containing it). Since the hook answers with `permissionDecision: deny`, each hit cost a turn, and the reliable response was to reword the command until the regex stopped matching, which bought no safety and trained evasion of the gate. The narrower patterns (`git reset --hard`, force push, `DROP TABLE`/`DATABASE`/`SCHEMA`, `TRUNCATE TABLE`, `dd if=`, block-device redirect) are unchanged. The deny message no longer advertises `rm -rf`.
 
   **Tradeoff:** a genuinely destructive `rm -rf` on a real path now runs without a challenge. The quote-versus-execute blindness is unfixed for the remaining patterns, so a read-only `grep -r "TRUNCATE TABLE"` is still denied.
+
+- **gemini-mcp pin bumped from `v0.2.0` to `v0.2.1`.** The plugin manifest pins the MCP server by tag rather than floating on `main`, so picking up an upstream release is an explicit change here. This bump landed in the manifest without a changelog entry, which would have shipped it undocumented; the reference docs that still quoted the old pin (`docs/index.md`, `docs/reference/architecture.md`, `docs/explanation/design-decisions.md`) now match the manifest.
 
 ### Fixed
 
@@ -173,7 +177,14 @@ First usable release. v0.1.0 was tagged but never published as a GitHub Release 
 - 1 session rules file.
 - Full docs (Diataxis structure: tutorial, how-to, reference, explanation).
 
-[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/azmym/gemini-plugin/compare/v0.6.1...v0.7.0
+[0.6.1]: https://github.com/azmym/gemini-plugin/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/azmym/gemini-plugin/compare/v0.5.1...v0.6.0
+[0.5.1]: https://github.com/azmym/gemini-plugin/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/azmym/gemini-plugin/compare/v0.4.1...v0.5.0
+[0.4.1]: https://github.com/azmym/gemini-plugin/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/azmym/gemini-plugin/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/azmym/gemini-plugin/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/azmym/gemini-plugin/compare/v0.1.3...v0.2.0
 [0.1.3]: https://github.com/azmym/gemini-plugin/compare/v0.1.2...v0.1.3
