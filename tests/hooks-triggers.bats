@@ -142,8 +142,14 @@ teardown() {
 # permissionDecision: deny is the documented way to block a tool call
 # while still being able to inject additionalContext.
 
-@test "pre-destructive-bash: exits 0 with permissionDecision=deny for rm -rf" {
+@test "pre-destructive-bash: passes through rm -rf (no longer a guarded pattern)" {
   run bash -c 'echo "{\"tool_input\":{\"command\":\"rm -rf /tmp/foo\"}}" | ./hooks/pre-destructive-bash.sh'
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "pre-destructive-bash: still denies, and still names the challenger, for a guarded pattern" {
+  run bash -c 'echo "{\"tool_input\":{\"command\":\"git reset --hard HEAD~3\"}}" | ./hooks/pre-destructive-bash.sh'
   [ "$status" -eq 0 ]
   echo "$output" | jq -e '.hookSpecificOutput.permissionDecision == "deny"'
   echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("gemini-challenger")'
@@ -296,6 +302,9 @@ teardown() {
   export CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1
   run bash -c 'CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1 echo "{\"prompt\":\"what version of react?\"}" | ./hooks/user-prompt-grounding.sh'
   [ "$status" -eq 0 ]
-  run bash -c 'CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1 echo "{\"tool_input\":{\"command\":\"rm -rf /\"}}" | ./hooks/pre-destructive-bash.sh'
+  # Use a still-guarded pattern here: rm no longer matches, so it would exit 0
+  # regardless and the kill switch would not actually be under test.
+  run bash -c 'CLAUDE_PLUGIN_GEMINI_DISABLE_HOOKS=1 echo "{\"tool_input\":{\"command\":\"git reset --hard HEAD~1\"}}" | ./hooks/pre-destructive-bash.sh'
   [ "$status" -eq 0 ]
+  [ -z "$output" ]
 }

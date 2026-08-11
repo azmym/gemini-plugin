@@ -30,7 +30,7 @@ if ! is_destructive_command "$COMMAND"; then
 fi
 
 DIRECTIVE=$(build_destructive_challenge_directive "$COMMAND")
-REASON="gemini-plugin: this command matches a destructive pattern (rm -rf, force push, DROP TABLE, etc). Spawning @agent-gemini-plugin:gemini-challenger to propose safer alternatives."
+REASON="gemini-plugin: this command matches a destructive pattern (force push, hard reset, DROP TABLE, TRUNCATE TABLE, dd, block-device redirect). Spawning @agent-gemini-plugin:gemini-challenger to propose safer alternatives."
 
 jq -n --arg ctx "$DIRECTIVE" --arg reason "$REASON" '{
   hookSpecificOutput: {

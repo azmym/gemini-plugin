@@ -62,9 +62,20 @@ teardown() {
   [ "$status" -eq 0 ]
 }
 
-@test "is_destructive_command matches rm -rf" {
+# rm is deliberately NOT a destructive pattern. It fired constantly on ordinary
+# work (scratch dirs under /tmp, `rm -rf node_modules`, and any command that
+# merely mentioned the flags in a quoted string or test fixture), and the hook's
+# response is a hard deny, so every hit cost a turn. The agent's reliable
+# reaction was to reword the command until the regex stopped matching, which
+# bought no safety and taught evasion. The narrower patterns below stay.
+@test "is_destructive_command does NOT match rm -rf" {
   run bash -c 'source hooks/lib/common.sh; is_destructive_command "rm -rf /tmp/foo"'
-  [ "$status" -eq 0 ]
+  [ "$status" -eq 1 ]
+}
+
+@test "is_destructive_command does NOT match a quoted mention of rm -rf" {
+  run bash -c 'source hooks/lib/common.sh; is_destructive_command "echo \"never rm -rf the repo\""'
+  [ "$status" -eq 1 ]
 }
 
 @test "is_destructive_command matches git push --force" {

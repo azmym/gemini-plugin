@@ -4,6 +4,12 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+### Changed
+
+- **`rm` is no longer a destructive pattern.** `is_destructive_command` matched `rm -[rRf]`, which made it the highest-volume trigger in the set while almost none of its hits were the case worth guarding: scratch directories under `/tmp`, `rm -rf node_modules`, and, because the gate is a plain `grep` over the raw command string with no notion of quoting, every command that merely *named* the flags (`echo "never rm -rf the repo"`, a `grep` for the pattern, a bats fixture containing it). Since the hook answers with `permissionDecision: deny`, each hit cost a turn, and the reliable response was to reword the command until the regex stopped matching, which bought no safety and trained evasion of the gate. The narrower patterns (`git reset --hard`, force push, `DROP TABLE`/`DATABASE`/`SCHEMA`, `TRUNCATE TABLE`, `dd if=`, block-device redirect) are unchanged. The deny message no longer advertises `rm -rf`.
+
+  **Tradeoff:** a genuinely destructive `rm -rf` on a real path now runs without a challenge. The quote-versus-execute blindness is unfixed for the remaining patterns, so a read-only `grep -r "TRUNCATE TABLE"` is still denied.
+
 ### Fixed
 
 - **The risk map was silently never built in any sizeable repo.** `session-start-risk-map.sh` piped `find` into `head -200` to cap the directory tree. `head` closes the pipe as soon as it has its 200 lines, so `find` dies of SIGPIPE (exit 141) whenever more files match; `set -o pipefail` promoted that to the pipeline's status, `set -e` fired the ERR trap, and the hook exited 0 having emitted no directive. Because the trap converted the crash into a clean skip, there was no error to notice: the risk map was simply absent, in exactly the large repos it is most useful for. Fixed by scoping `set +o pipefail` to that one pipeline, which the surrounding command substitution already isolates in a subshell. Added a bats regression test that builds a tree large enough to overflow the 64KB pipe buffer, the condition the existing session-start tests could never hit because this repo contains no matching source files.

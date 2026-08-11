@@ -20,7 +20,7 @@
 ## Why use it?
 
 - **Catch mistakes before they ship.** Every plan Claude produces is reviewed by Gemini for gaps and hallucinations before you see it.
-- **Stop dangerous commands before they run.** When Claude is about to execute `rm -rf`, a force-push, or a `DROP TABLE`, Gemini proposes safer alternatives and can block execution until you decide.
+- **Stop dangerous commands before they run.** When Claude is about to execute a force-push, a hard reset, or a `DROP TABLE`, Gemini proposes safer alternatives and can block execution until you decide.
 - **Get answers grounded in today's web.** Questions about library versions, recent CVEs, or live API docs are answered with citations, not training-data guesses.
 - **Review diffs and PRs.** A dedicated reviewer agent checks changes for security, threading, version drift, doc accuracy, dead code, and complexity.
 - **Keep context alive across compaction.** Before Claude compacts its context, Gemini summarizes decisions, discarded alternatives, and unresolved debt so the next session picks up cleanly.
@@ -153,7 +153,7 @@ These fire without any action on your part:
 | Session start | Once per project per day | A risk map of high-fragility zones in your repo |
 | Prompt grounding | **On every prompt by default** (opt out with `/gemini-plugin:gemini-brainstorm-off`); after opt-out, only on prompts matching narrow patterns like "latest version of X", "CVE-YYYY-NNN", or "changelog for X" | Citations prepended to Claude's answer |
 | Plan validation | When Claude exits plan mode | A pass or a list of gaps to address before proceeding |
-| Destructive command | Before `rm -rf`, `--force` pushes, `DROP TABLE`, and similar | Alternatives and a block if a safer path exists |
+| Destructive command | Before `--force` pushes, `git reset --hard`, `DROP TABLE`, and similar (`rm` is not matched) | Alternatives and a block if a safer path exists |
 | Pre-compact | Before context compaction | A structured summary of decisions and open work |
 | Done-claim check | When Claude signals it has finished | A pass or a list of missed requirements |
 

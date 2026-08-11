@@ -80,9 +80,18 @@ get_plan_history() {
 # Matches a command string against destructive patterns.
 # Returns 0 if destructive, 1 if safe.
 # Patterns are intentionally narrow to keep false-positive rate low.
+#
+# rm is deliberately absent. It was the highest-volume pattern by far and almost
+# none of its hits were the case worth guarding: scratch directories under /tmp,
+# `rm -rf node_modules`, and, because this is a plain grep over the raw command
+# string with no notion of quoting, every command that merely NAMED the flags
+# (`echo "never rm -rf the repo"`, a grep for the pattern, a test fixture
+# containing it). Since the hook answers with a hard deny, each hit cost a turn,
+# and the reliable agent response was to reword the command until the regex
+# stopped matching. That bought no safety and trained evasion of the gate.
 is_destructive_command() {
   local cmd="$1"
-  echo "$cmd" | grep -qE '\brm\s+-[a-zA-Z]*[rRf]|\bgit\s+reset\s+--hard\b|\bgit\s+push\s+[^|;]*--force\b|\bDROP\s+(TABLE|DATABASE|SCHEMA)\b|\bTRUNCATE\s+TABLE\b|\bdd\s+if=|>\s*/dev/sd[a-z]'
+  echo "$cmd" | grep -qE '\bgit\s+reset\s+--hard\b|\bgit\s+push\s+[^|;]*--force\b|\bDROP\s+(TABLE|DATABASE|SCHEMA)\b|\bTRUNCATE\s+TABLE\b|\bdd\s+if=|>\s*/dev/sd[a-z]'
 }
 
 # Default design-artifact globs (colon-separated). Overridable via

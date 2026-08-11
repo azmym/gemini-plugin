@@ -60,15 +60,16 @@ No hook ever blocks when the API key is absent. To re-enter your key, use the pl
 
 The `pre-destructive-bash.sh` hook matches these patterns:
 
-- `rm -rf` or `rm --force`
-- `--force` flag on any command
-- `reset --hard`
-- `DROP` (SQL)
-- `TRUNCATE` (SQL)
+- `git reset --hard`
 - `git push ... --force`
+- `DROP TABLE`, `DROP DATABASE`, `DROP SCHEMA` (SQL)
+- `TRUNCATE TABLE` (SQL)
 - `dd if=`
+- redirection to a raw block device (`> /dev/sd*`)
 
 Safe commands (like `git push origin main` without `--force`) pass through without triggering.
+
+`rm` is not matched, including `rm -rf`. See [hooks reference](../reference/hooks.md#pre-destructive-bashsh) for why.
 
 ## UserPromptSubmit keyword gate
 
