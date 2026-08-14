@@ -4,6 +4,28 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-08-14
+
+### Fixed
+
+- **File analysis was returning 403 on every default call; gemini-mcp pin bumped from `v0.2.2` to `v0.3.0`.** `gemini_analyze_file` routed every request through Google's Files API, and Gemini 3.x models reject Files API references with `403 PERMISSION_DENIED` ("The caller does not have permission") even for a file the same API key uploaded successfully seconds earlier. Only `gemini-2.5-*` models accept those references. Because the tool defaults to `gemini-3.1-pro-preview`, the tool failed unless a caller happened to pass a 2.5 model, which took `gemini-file-analysis` and any PDF, image, audio, or video question with it.
+
+  The upload itself was never the problem, which is what made this read as a credentials fault: `files.upload` and `files.list` both succeed, and the same uploaded file works on `gemini-2.5-flash`. The 403 comes from `generateContent` when a file reference reaches a 3.x model, and it reproduces on `gemini-3.1-flash-lite`, `gemini-3.1-pro-preview`, `gemini-3.5-flash`, `gemini-3.6-flash`, and `gemini-3.7-flash` alike. Passing the SDK file object and passing an explicit `Part.from_uri` both fail, so the reference itself is refused rather than the way it is wrapped.
+
+  Upstream fix (azmym/gemini-mcp#9) sends files at or under 15MB inline as bytes, the path that works on every model, and keeps the Files API as a fallback above that threshold. Responses gain an `inline` flag reporting which path served the call, with `file_uri` empty when nothing was uploaded. Verified live across text, PDF, and PNG on both `gemini-3.1-pro-preview` and `gemini-3.7-flash`: all six combinations that previously returned 403 now answer correctly.
+
+  Files larger than 15MB still need an explicit `gemini-2.5-*` model, because the Files API fallback inherits the same 403. That one needs Google to accept file references on 3.x models.
+
+### Changed
+
+- **Model defaults moved to the current generation.** Grounded search and chat now default to `gemini-3.7-flash` instead of `gemini-3.5-flash`, and both image tools move off preview IDs to `gemini-3.1-flash-image` now that a GA equivalent is served (azmym/gemini-mcp#8). Every ID was called against the live API before becoming a default.
+
+  Reasoning-tier defaults are deliberately left on `gemini-3.1-pro-preview` (`gemini_generate`, `gemini_analyze_file`, `gemini_code_execute`). Gemini 3.7 ships flash-only, with no `gemini-3.7-pro` in the served model list, so pointing those tools at a flash model would trade reasoning depth for speed rather than upgrade them. Callers who want flash on those paths can still pass `model=` or set `GEMINI_DEFAULT_MODEL`.
+
+  This is a minor rather than a patch release because the defaults are user-visible: anyone who never pinned a model will see different behavior, latency, and cost.
+
+  **Requires a fresh Claude Code session:** the MCP server is launched at session start, so an existing session keeps running the old `v0.2.2` process.
+
 ## [0.7.1] - 2026-08-14
 
 ### Fixed
@@ -187,7 +209,8 @@ First usable release. v0.1.0 was tagged but never published as a GitHub Release 
 - 1 session rules file.
 - Full docs (Diataxis structure: tutorial, how-to, reference, explanation).
 
-[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/azmym/gemini-plugin/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/azmym/gemini-plugin/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/azmym/gemini-plugin/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/azmym/gemini-plugin/compare/v0.6.0...v0.6.1

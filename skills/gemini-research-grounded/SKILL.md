@@ -42,7 +42,7 @@ Deep research is asynchronous and may take 30-120 seconds. Use it only when brea
   "tool": "gemini_search_grounded",
   "arguments": {
     "query": "Latest stable release of Kubernetes and its release date",
-    "model": "gemini-2.5-flash"
+    "model": "gemini-3.7-flash"
   }
 }
 ```

@@ -161,7 +161,7 @@ The plugin manifest auto-registers the gemini MCP server on install:
     "gemini": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/azmym/gemini-mcp@v0.2.2", "gemini-mcp"],
+      "args": ["--from", "git+https://github.com/azmym/gemini-mcp@v0.3.0", "gemini-mcp"],
       "env": { "GEMINI_API_KEY": "${user_config.gemini_api_key}" }
     }
   }
@@ -203,4 +203,4 @@ State is local, session-scoped, and disposable. Deleting the data directory rese
 | gemini-summarizer | Opus | Large-input compression with structured output; bumped from Sonnet in v0.3.0 |
 | gemini-reviewer | Sonnet | Generalist diff/PR review; manual consult via the gemini-consult rule (added in v0.4.0) |
 
-All subagents call Gemini models via MCP (default: `gemini-3.5-flash` for chat/search, `gemini-3.1-pro-preview` for generate). The Claude model handles orchestration and JSON structuring; the Gemini model handles reasoning and web access. The Claude-side model bumps in v0.3.0 fixed a class of partial-response failures where validator and other agents were exiting before producing the final JSON verdict.
+All subagents call Gemini models via MCP (default: `gemini-3.7-flash` for chat/search, `gemini-3.1-pro-preview` for generate). The Claude model handles orchestration and JSON structuring; the Gemini model handles reasoning and web access. The Claude-side model bumps in v0.3.0 fixed a class of partial-response failures where validator and other agents were exiting before producing the final JSON verdict.
