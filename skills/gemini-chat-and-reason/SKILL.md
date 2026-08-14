@@ -23,9 +23,9 @@ Use this skill when you want Gemini to serve as a reasoning partner: reviewing c
 
 ## Model selection guidance
 
-- For routine second opinions and code reviews, use the default model (Gemini 2.5 Flash or equivalent); it is fast and cheap.
-- For complex architectural decisions or lengthy documents requiring deep reasoning, request `gemini-2.5-pro` explicitly via the `model` parameter.
-- Avoid `gemini-2.5-pro` on short, low-stakes queries; the cost uplift is not justified.
+- For routine second opinions and code reviews, use the default model (`gemini-3.7-flash` for chat); it is fast and cheap.
+- For complex architectural decisions or lengthy documents requiring deep reasoning, request `gemini-3.1-pro-preview` explicitly via the `model` parameter. This is already the default for `gemini_generate`.
+- Avoid the pro tier on short, low-stakes queries; the cost uplift is not justified.
 
 ## Usage pattern
 
@@ -36,7 +36,7 @@ Use this skill when you want Gemini to serve as a reasoning partner: reviewing c
   "tool": "gemini_generate",
   "arguments": {
     "prompt": "Review the following Go function for correctness, error handling, and idiomatic style:\n\n```go\n<paste code here>\n```",
-    "model": "gemini-2.5-flash"
+    "model": "gemini-3.7-flash"
   }
 }
 ```

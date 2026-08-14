@@ -56,7 +56,7 @@ The researcher returns:
   ],
   "freshness": "2026-05-26",
   "confidence": "high | medium | low",
-  "model": "gemini-3.5-flash"
+  "model": "gemini-3.7-flash"
 }
 ```
 

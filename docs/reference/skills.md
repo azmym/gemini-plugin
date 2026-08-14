@@ -46,7 +46,7 @@ The plugin ships 9 task-oriented skills. Skills tell Claude WHEN to reach for Ge
 
 **Use for:** Code review, design critique, sanity-checking before commit, architectural debates.
 
-**Model defaults:** gemini-3.5-flash for chat, gemini-3.1-pro-preview for generate.
+**Model defaults:** gemini-3.7-flash for chat, gemini-3.1-pro-preview for generate.
 
 ## gemini-research-grounded
 

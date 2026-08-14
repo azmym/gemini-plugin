@@ -73,9 +73,10 @@ Use this skill to send files to Gemini for multi-modal analysis. Gemini can read
 
 ## Model selection guidance
 
-- For image and text files, the default model (Gemini 2.5 Flash) is sufficient.
-- For long videos or very large PDFs requiring deep reasoning, use `gemini-2.5-pro` via the `model` parameter.
-- File uploads consume tokens proportional to file size; avoid uploading files unnecessarily.
+- For image and text files, the default model (`gemini-3.1-pro-preview`) is sufficient.
+- For faster, cheaper answers on simple files, pass `gemini-3.7-flash` via the `model` parameter.
+- Files over 15MB must use a `gemini-2.5-*` model. Above that size the tool falls back to Google's Files API, and Gemini 3.x models reject Files API references with `403 PERMISSION_DENIED`. Smaller files are sent inline and work on every model.
+- Files consume tokens proportional to size; avoid sending files unnecessarily.
 
 ## Tips
 
