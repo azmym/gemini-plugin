@@ -4,6 +4,8 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-08-14
+
 ### Fixed
 
 - **Deep research was unusable; gemini-mcp pin bumped from `v0.2.1` to `v0.2.2`.** Every `deep-research-*` model returned `400 INVALID_ARGUMENT: This model only supports Interactions API`, so `gemini_start_research` could never produce a report and `/gemini-plugin:gemini-research --deep` silently degraded to whatever the caller fell back to. The defect was entirely in the pinned MCP server (azmym/gemini-mcp#7), which called `models.generate_content()` for models that are only served by the Interactions API; this repo contains no API-calling code, so the only change here is the pin. Note that `gemini_list_models` was not the culprit despite appearances: it faithfully echoes upstream metadata, which does advertise `generateContent` for these models, so the false capability signal is Google's and no check on this side could have caught it.
@@ -185,7 +187,8 @@ First usable release. v0.1.0 was tagged but never published as a GitHub Release 
 - 1 session rules file.
 - Full docs (Diataxis structure: tutorial, how-to, reference, explanation).
 
-[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/azmym/gemini-plugin/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/azmym/gemini-plugin/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/azmym/gemini-plugin/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/azmym/gemini-plugin/compare/v0.5.1...v0.6.0
