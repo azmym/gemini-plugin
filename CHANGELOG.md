@@ -4,6 +4,14 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+### Fixed
+
+- **Deep research was unusable; gemini-mcp pin bumped from `v0.2.1` to `v0.2.2`.** Every `deep-research-*` model returned `400 INVALID_ARGUMENT: This model only supports Interactions API`, so `gemini_start_research` could never produce a report and `/gemini-plugin:gemini-research --deep` silently degraded to whatever the caller fell back to. The defect was entirely in the pinned MCP server (azmym/gemini-mcp#7), which called `models.generate_content()` for models that are only served by the Interactions API; this repo contains no API-calling code, so the only change here is the pin. Note that `gemini_list_models` was not the culprit despite appearances: it faithfully echoes upstream metadata, which does advertise `generateContent` for these models, so the false capability signal is Google's and no check on this side could have caught it.
+
+  Upstream fix routes deep-research IDs to `interactions.create(agent=..., background=True)`, maps the interaction status enum explicitly (a `failed` or `budget_exceeded` interaction previously read as done), returns the API's own interaction ID so a handle survives an MCP server restart, and raises the `google-genai` floor to `>=2.0.0` because the service refuses the legacy interactions schema below that. Deep research verified end to end against the live API before the pin moved.
+
+  **Requires a fresh Claude Code session:** the MCP server is launched at session start, so an existing session keeps running the old `v0.2.1` process.
+
 ## [0.7.0] - 2026-08-11
 
 ### Changed
