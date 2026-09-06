@@ -4,6 +4,12 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+### Fixed
+
+- **New AI Studio `AQ.` Authorization keys were rejected; gemini-mcp pin bumped from `v0.3.0` to `v0.3.1`.** Google AI Studio now issues Authorization keys starting with `AQ.` instead of the legacy `AIza` format. The server was already format-agnostic (the key is passed through to `google-genai`, which sends it via the `x-goog-api-key` header `AQ.` keys require), but the pin and docs now state that compatibility explicitly. The only functional changes are the tag and a `google-genai` floor raise to `>=2.18.1`, the version verified against `AQ.` keys; older 2.x releases may predate them. Both the new `AQ.` format and legacy `AIza` keys work with no configuration difference.
+
+  **Requires a fresh Claude Code session:** the MCP server is launched at session start, so an existing session keeps running the old `v0.3.0` process.
+
 ## [0.8.0] - 2026-08-14
 
 ### Fixed
