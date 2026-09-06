@@ -161,7 +161,7 @@ The plugin manifest auto-registers the gemini MCP server on install:
     "gemini": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/azmym/gemini-mcp@v0.3.0", "gemini-mcp"],
+      "args": ["--from", "git+https://github.com/azmym/gemini-mcp@v0.3.1", "gemini-mcp"],
       "env": { "GEMINI_API_KEY": "${user_config.gemini_api_key}" }
     }
   }
