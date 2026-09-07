@@ -4,6 +4,8 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-09-06
+
 ### Fixed
 
 - **New AI Studio `AQ.` Authorization keys were rejected; gemini-mcp pin bumped from `v0.3.0` to `v0.3.1`.** Google AI Studio now issues Authorization keys starting with `AQ.` instead of the legacy `AIza` format. The server was already format-agnostic (the key is passed through to `google-genai`, which sends it via the `x-goog-api-key` header `AQ.` keys require), but the pin and docs now state that compatibility explicitly. The only functional changes are the tag and a `google-genai` floor raise to `>=2.18.1`, the version verified against `AQ.` keys; older 2.x releases may predate them. Both the new `AQ.` format and legacy `AIza` keys work with no configuration difference.
@@ -215,7 +217,8 @@ First usable release. v0.1.0 was tagged but never published as a GitHub Release 
 - 1 session rules file.
 - Full docs (Diataxis structure: tutorial, how-to, reference, explanation).
 
-[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/azmym/gemini-plugin/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/azmym/gemini-plugin/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/azmym/gemini-plugin/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/azmym/gemini-plugin/compare/v0.6.1...v0.7.0
