@@ -7,7 +7,6 @@ description: |
   research (use gemini-researcher), claim validation (use gemini-validator),
   or devil's-advocate brainstorming (use gemini-challenger). Returns structured
   JSON {verdict, strengths, issues, next_actions}.
-model: sonnet
 color: cyan
 maxTurns: 10
 skills:

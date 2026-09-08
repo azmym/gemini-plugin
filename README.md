@@ -65,7 +65,7 @@ You will be prompted for your Google AI Studio API key during installation. The 
 
 The plugin auto-registers the `gemini` MCP server. No separate `claude mcp add` step is needed.
 
-> **Heads up on cost.** Brainstorming is on by default (since v0.2.0), so every prompt is grounded with a Gemini call. Combined with the subagent model tiers (Sonnet for validator, researcher, and reviewer; Opus for challenger and summarizer), this is meaningfully more expensive than keyword-only grounding. To dial it back, run `/gemini-plugin:gemini-brainstorm-off` to fall back to keyword-triggered grounding.
+> **Heads up on cost.** Brainstorming is on by default (since v0.2.0), so every prompt is grounded with a Gemini call. That is meaningfully more expensive than keyword-only grounding. To dial it back, run `/gemini-plugin:gemini-brainstorm-off` to fall back to keyword-triggered grounding.
 
 ## What it does for you
 
@@ -114,15 +114,15 @@ There is no `gemini-review` command: diff review runs through the `gemini-consul
 
 ## Subagents
 
-Five specialized agents do the reasoning. Each runs in its own context, calls Gemini through the MCP server, and returns a structured JSON verdict. They are spawned automatically by hooks, by a slash command, or by the `gemini-consult` dispatch rule. You can also call one directly, for example `@agent-gemini-plugin:gemini-reviewer review the staged diff`.
+Five specialized agents do the reasoning. Each runs in its own context, calls Gemini through the MCP server, and returns a structured JSON verdict. They are spawned automatically by hooks, by a slash command, or by the `gemini-consult` dispatch rule. You can also call one directly, for example `@agent-gemini-plugin:gemini-reviewer review the staged diff`. They do not pin a model; each inherits the session model, because a pinned alias is resolved by whichever backend the host routes to and can land on a small-context model.
 
-| Subagent | Model | Role | Usually triggered by |
-|---|---|---|---|
-| `gemini-validator` | Sonnet | Validates plans, diffs, and done-claims against the original ask; flags gaps and hallucinations | Plan-validation hook, done-claim hook, `/gemini-plugin:gemini-validate` |
-| `gemini-challenger` | Opus | Devil's advocate: argues alternatives and objections before destructive or architectural decisions | Destructive-command hook, `/gemini-plugin:gemini-challenge` |
-| `gemini-researcher` | Sonnet | Search-grounded facts with citations; never opines without a source URL | Prompt-grounding hook, `/gemini-plugin:gemini-research` |
-| `gemini-summarizer` | Opus | Builds repo risk maps and compresses session state across compaction | Session-start hook, pre-compact hook |
-| `gemini-reviewer` | Sonnet | Generalist diff/PR review: security, threading, version drift, doc accuracy, dead code, complexity | `gemini-consult` dispatch rule (manual, advisory) |
+| Subagent | Role | Usually triggered by |
+|---|---|---|
+| `gemini-validator` | Validates plans, diffs, and done-claims against the original ask; flags gaps and hallucinations | Plan-validation hook, done-claim hook, `/gemini-plugin:gemini-validate` |
+| `gemini-challenger` | Devil's advocate: argues alternatives and objections before destructive or architectural decisions | Destructive-command hook, `/gemini-plugin:gemini-challenge` |
+| `gemini-researcher` | Search-grounded facts with citations; never opines without a source URL | Prompt-grounding hook, `/gemini-plugin:gemini-research` |
+| `gemini-summarizer` | Builds repo risk maps and compresses session state across compaction | Session-start hook, pre-compact hook |
+| `gemini-reviewer` | Generalist diff/PR review: security, threading, version drift, doc accuracy, dead code, complexity | `gemini-consult` dispatch rule (manual, advisory) |
 
 If a Gemini MCP tool is not available in the session, each agent **fails loud**: it returns `verdict: "unknown"` (the researcher uses `confidence: "unavailable"`) with an `error` field, rather than answering from training data. Full schemas: [docs/reference/subagents.md](docs/reference/subagents.md).
 

@@ -5,7 +5,6 @@ description: |
   live API docs, recent CVEs, library releases, or any claim that needs a
   primary source. Performs search-grounded research and deep research via
   Gemini. Never opines without a citation. Returns answer + citations.
-model: sonnet
 color: green
 maxTurns: 12
 effort: medium
