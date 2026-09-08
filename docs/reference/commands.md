@@ -115,13 +115,13 @@ The plugin ships 6 slash commands. Three invoke subagents for manual consultatio
 
 **Arguments:** none
 
-**Behavior:** Runs four diagnostic checks and prints a pass/fail summary:
+**Behavior:** Runs four diagnostic checks and prints a summary. Each check reports one of **three** verdicts, `PASS`, `FAIL`, or `INCONCLUSIVE`, and must print an `Evidence:` line quoting the raw output it observed. A verdict with no evidence is not allowed: it becomes `INCONCLUSIVE`.
 
 1. **API key configured.** Confirms `CLAUDE_PLUGIN_OPTION_GEMINI_API_KEY` or `GEMINI_API_KEY` is set, without printing the key.
-2. **MCP server reachable from the main agent.** Resolves the grounded-search tool under either the plugin namespace (`mcp__plugin_gemini-plugin_gemini__gemini_search_grounded`) or the manual-install namespace (`mcp__gemini__gemini_search_grounded`), then calls it once to confirm live results with citation URLs.
-3. **Subagent grounding path.** Spawns `gemini-researcher` and confirms it actually sees a Gemini tool in its inventory and grounds for real. This is the check that catches the most common failure.
-4. **On-disk version.** Reports the plugin version in `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`, which is what the next fresh session will load.
+2. **MCP server reachable from the main agent.** Resolves the grounded-search tool by matching the tool name **suffix** `gemini_search_grounded`, accepting any prefix, then calls it once to confirm live results with citation URLs. The MCP prefix differs per host and per install type (plugin install versus manual install), so the doctor never assumes a namespace and reports the resolved name verbatim from what the host returned.
+3. **Subagent grounding path.** Spawns `gemini-researcher` and confirms it actually sees a Gemini tool in its inventory and grounds for real. This check distinguishes three outcomes: `PASS` (grounded), `FAIL` (the researcher ran and reported no Gemini tool), and `INCONCLUSIVE` (the spawn never completed, for example a rejected prompt or an unregistered agent). A spawn that never ran says nothing about grounding and is never reported as `FAIL`.
+4. **On-disk version.** Searches the known plugin locations, including `${CLAUDE_PLUGIN_ROOT}` when set, and reports each version found **together with the path it came from**. If two paths disagree it reports `VERSION DRIFT`, which explains a session behaving unlike the source you are reading.
 
-**Why it exists:** the most common "grounding produced nothing" report is a **stale session**: the MCP server works (check 2 passes), but a session started before a plugin update still has the outdated subagent definitions loaded in memory (check 3 fails). Subagent definitions are loaded at session start and are not reloaded when the plugin updates on disk. When the doctor sees check 2 pass and check 3 fail, it tells the user to restart Claude Code.
+**Why it exists:** a common "grounding produced nothing" report is a **stale session**: the MCP server works (check 2 passes), but a session started before a plugin update still has the outdated subagent definitions loaded in memory (check 3 fails). Subagent definitions are loaded at session start and are not reloaded when the plugin updates on disk. When the doctor sees check 2 pass and check 3 genuinely fail, it tells the user to restart the session. It does **not** claim a stale session when check 3 is `INCONCLUSIVE`, because a check that could not run is not evidence of a fault.
 
-**Diagnosis output:** one line identifying the first failing condition (missing key, server unreachable, stale session, or healthy).
+**Diagnosis output:** one line identifying the first matching condition (missing key, server unreachable, stale session, or healthy). If any check is `INCONCLUSIVE`, the diagnosis names the check that could not be determined, quotes the reason, and states what would settle it, rather than filling the gap with a guess.
