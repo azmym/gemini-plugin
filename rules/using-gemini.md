@@ -27,7 +27,7 @@ The gemini-plugin is loaded. Five subagents assist you:
 
 ### Cost discipline
 
-- Validator and researcher use sonnet; challenger and summarizer use opus. Per-prompt grounding now defaults on, so this is a real cost; opt out with /gemini-plugin:gemini-brainstorm-off if needed.
+- Subagents pin no model; they inherit the session model. Per-prompt grounding now defaults on, so this is a real cost; opt out with /gemini-plugin:gemini-brainstorm-off if needed.
 - Manual consults (researcher, validator, challenger, reviewer, summarizer via the gemini-consult rule) are capped at one per turn. The always-on hooks are a separate channel, not counted against that cap.
 - Deep research is opt-in only (via /gemini-plugin:gemini-research --deep)
 - One validation per artifact per session. No re-asking.

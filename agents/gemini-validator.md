@@ -5,7 +5,6 @@ description: |
   or before a destructive change. Validates the artifact against the original ask
   and flags gaps, hallucinations, and missed acceptance criteria. Returns
   structured JSON {verdict, gaps, hallucinations, next_actions}.
-model: sonnet
 color: blue
 maxTurns: 6
 effort: medium

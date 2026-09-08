@@ -59,13 +59,12 @@ The grounding hook (search-grounded Gemini) only fires on prompts containing spe
 Each role has fundamentally different:
 - **System prompts** (skeptical reviewer vs creative challenger vs fact-finder vs compressor)
 - **Tool needs** (validator needs Grep/Glob; researcher needs deep-research polling; challenger needs chat)
-- **Model economics** (haiku for high-volume validation; sonnet for creative reasoning)
 - **Memory needs** (validator/summarizer accumulate project knowledge; challenger/researcher stay stateless to avoid bias)
 - **Blocking behavior** (validator blocks on fail; researcher runs in background for deep research)
 
-One mega-agent would require runtime mode-switching, couldn't be independently disabled, and couldn't have different model/memory/background settings per mode.
+One mega-agent would require runtime mode-switching, couldn't be independently disabled, and couldn't have different memory/background settings per mode.
 
-## Why Sonnet for validator, Opus for challenger? (Updated v0.3.0)
+## Why the plugin no longer pins models (Updated v0.9.0)
 
 **v0.1.0 - v0.2.0:** validator was Haiku, challenger was Sonnet, researcher was Haiku, summarizer was Sonnet. The thinking was cost optimization for high-volume validation paths.
 
@@ -75,7 +74,9 @@ One mega-agent would require runtime mode-switching, couldn't be independently d
 2. Haiku struggled with structured-output reliability on artifact validation
 3. The system prompt didn't emphasize "final turn must be JSON only"
 
-The fix doubled `maxTurns` (3→6, 4→8, 6→12, 2→4), bumped models one tier, and tightened the "final-turn-must-be-JSON" instruction. Cost per call is up roughly 4-5x but validator now actually delivers verdicts.
+The v0.3.0 fix changed three things at once: it doubled `maxTurns` (3→6, 4→8, 6→12, 2→4), bumped models one tier, and tightened the "final-turn-must-be-JSON" instruction.
+
+**v0.9.0:** only two of those three changes were load-bearing. The doubled `maxTurns` and the sharpened "final turn must be JSON only" instruction are what fixed the reliability problem. The model pin itself later became actively harmful: a pinned alias is not resolved by the model vendor but by whichever backend the host routes to, and behind a proxy or router it can resolve to a model with a very small context window. The fixed startup load of a subagent (global rules, project instructions, skill catalog) then exceeds that window before the task prompt is even appended, and the subagent dies with an input-length error. So the pins are gone: subagents inherit the session model, and a harness that does not read the field simply ignores its absence.
 
 Original cost-optimization rationale (kept for historical context):
 
@@ -95,7 +96,7 @@ Summarizer: fires on SessionStart + PreCompact = LOW volume
   → Sonnet: large input compression needs strong reasoning
 ```
 
-The Claude model (Haiku/Sonnet) handles orchestration and JSON structuring. The Gemini model (accessed via MCP) handles the actual reasoning, web search, and verification.
+The orchestrating host structures the exchange and formats the JSON verdict. The Gemini model (accessed via MCP) handles the actual reasoning, web search, and verification.
 
 ## Why project memory for validator and summarizer?
 

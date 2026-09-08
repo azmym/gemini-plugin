@@ -4,15 +4,15 @@ The plugin ships 5 specialized subagents. Each has a focused role, restricted to
 
 ## Subagent summary
 
-| Agent | Model | Effort | Max turns | Memory | Color | Background |
-|---|---|---|---|---|---|---|
-| gemini-validator | sonnet | medium | 6 | project | blue | false |
-| gemini-challenger | opus | high | 8 | (none) | red | false |
-| gemini-researcher | sonnet | medium | 12 | (none) | green | true |
-| gemini-summarizer | opus | high | 4 | project | purple | false |
-| gemini-reviewer | sonnet | medium | 10 | (none) | cyan | false |
+| Agent | Effort | Max turns | Memory | Color | Background |
+|---|---|---|---|---|---|
+| gemini-validator | medium | 6 | project | blue | false |
+| gemini-challenger | high | 8 | (none) | red | false |
+| gemini-researcher | medium | 12 | (none) | green | true |
+| gemini-summarizer | high | 4 | project | purple | false |
+| gemini-reviewer | medium | 10 | (none) | cyan | false |
 
-Subagents do not declare a `tools:` allowlist; they inherit the session's tools, including the Gemini MCP tools, under whatever namespace the install registers (the manual-install namespace or the plugin-install namespace). If no Gemini tool is present, each agent fails loud (verdict `unknown` or, for the researcher, confidence `unavailable`) with an `error` field, rather than answering from training data.
+Subagents do not declare a `tools:` allowlist; they inherit the session's tools, including the Gemini MCP tools, under whatever namespace the install registers (the manual-install namespace or the plugin-install namespace). If no Gemini tool is present, each agent fails loud (verdict `unknown` or, for the researcher, confidence `unavailable`) with an `error` field, rather than answering from training data. They likewise do not pin a `model:`; they inherit the session model, because a pinned alias is resolved by whichever backend the host routes to, and behind a proxy or router it can resolve to a small-context model that makes the subagent fail on input length before it reads its task.
 
 All subagents preload the `gemini-when-to-use` skill via the `skills:` frontmatter field.
 

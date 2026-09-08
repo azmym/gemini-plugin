@@ -4,6 +4,18 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+### Fixed
+
+- **Subagents pinned a vendor model alias, so on hosts that route to another backend they could not launch at all.** All five agents declared `model: sonnet` or `model: opus`. An alias is not resolved by the model vendor, it is resolved by whichever backend the host routes to, so behind a proxy or a router (for example an `ANTHROPIC_BASE_URL` pointing at a gateway) it can resolve to a model with a very small context window. A subagent's fixed startup load (global rules, project instructions, the installed skill catalog) then exceeds that window before the task prompt is even appended, and the spawn fails on input length. On an affected setup `gemini-researcher` died with "Prompt is too long" on every dispatch while the same session's main-agent Gemini path worked normally, because the main agent ran on the session model. A control spawn of an unpinned agent in the same session succeeded, which isolated the pin as the cause.
+
+  All five pins are removed. An absent `model:` field defaults to `inherit`, so subagents now run on the session model, and a harness that does not read the field simply ignores its absence. A test asserts that no agent pins anything other than `inherit`.
+
+- **Two agents named the wrong model in their own prose.** `gemini-challenger` and `gemini-summarizer` each described themselves as "powered by Claude Sonnet" while their frontmatter pinned `opus`, and both in fact do their work through `gemini_generate`. Both now read "powered by Google Gemini", matching their three siblings, and a test forbids naming a host model in an agent body. Suite is 125 tests, up from 123.
+
+### Changed
+
+- **The per-agent model tables are gone from the docs, since there is no longer a per-agent model to report.** The `Model` column is removed from the subagent tables in `README.md` and `docs/reference/subagents.md`, the `Model allocation` table in `docs/reference/architecture.md` is replaced by a short `Model selection` section, and the cost notes in `README.md`, `docs/reference/skills.md`, `rules/using-gemini.md`, `docs/how-to/validate-plans.md`, and `docs/how-to/research-live-data.md` no longer quote model tiers. `docs/explanation/design-decisions.md` keeps the v0.1.0 to v0.3.0 history and records the reversal: of the three changes v0.3.0 made together, the doubled `maxTurns` and the sharpened "final turn must be JSON only" instruction were the load-bearing ones, while the model pin itself later became the defect above.
+
 ## [0.8.2] - 2026-09-08
 
 ### Fixed

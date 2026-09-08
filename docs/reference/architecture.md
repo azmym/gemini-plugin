@@ -193,14 +193,8 @@ graph LR
 
 State is local, session-scoped, and disposable. Deleting the data directory resets all state (risk maps rebuild on next session, verdicts start fresh).
 
-## Model allocation
+## Model selection
 
-| Subagent | Model | Rationale |
-|---|---|---|
-| gemini-validator | Sonnet | Reliable structured-output for JSON verdicts; bumped from Haiku in v0.3.0 after partial-response failures |
-| gemini-challenger | Opus | Hardest reasoning task (creative alternatives + objections); bumped from Sonnet in v0.3.0 |
-| gemini-researcher | Sonnet | Multi-source synthesis and citation discipline; bumped from Haiku in v0.3.0 |
-| gemini-summarizer | Opus | Large-input compression with structured output; bumped from Sonnet in v0.3.0 |
-| gemini-reviewer | Sonnet | Generalist diff/PR review; manual consult via the gemini-consult rule (added in v0.4.0) |
+Subagents do not pin a model. They inherit the session model, because a pinned alias is resolved by whichever backend the host routes to, and behind a proxy or router it can resolve to a small-context model that makes the subagent fail on input length before it reads its task. An absent `model:` field defaults to `inherit`, and harnesses that do not read the field ignore its absence, so declaring no pin is the portable choice.
 
-All subagents call Gemini models via MCP (default: `gemini-3.7-flash` for chat/search, `gemini-3.1-pro-preview` for generate). The Claude model handles orchestration and JSON structuring; the Gemini model handles reasoning and web access. The Claude-side model bumps in v0.3.0 fixed a class of partial-response failures where validator and other agents were exiting before producing the final JSON verdict.
+All subagents call Gemini models via MCP (default: `gemini-3.7-flash` for chat/search, `gemini-3.1-pro-preview` for generate). The orchestrating host structures the exchange and formats the JSON verdict; the Gemini model handles reasoning and web access.
