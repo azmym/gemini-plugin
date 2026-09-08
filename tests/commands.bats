@@ -32,8 +32,23 @@ COMMANDS_DIR="commands"
 
 @test "doctor command checks both the MCP server and the subagent path" {
   grep -q "gemini-researcher" "$COMMANDS_DIR/gemini-doctor.md"
-  grep -q "mcp__plugin_gemini-plugin_gemini__gemini_search_grounded" "$COMMANDS_DIR/gemini-doctor.md"
+  # Short tool name only: the MCP prefix differs per host and per install type,
+  # so the doctor resolves by name suffix instead of a hardcoded full path.
+  grep -q "gemini_search_grounded" "$COMMANDS_DIR/gemini-doctor.md"
   grep -qi "stale session" "$COMMANDS_DIR/gemini-doctor.md"
+}
+
+@test "doctor command offers INCONCLUSIVE and requires evidence per check" {
+  # A check that could not run must not be reported as PASS or FAIL. A rejected
+  # subagent spawn was once reported as FAIL, which sent users to fix grounding
+  # that was never broken.
+  grep -q "INCONCLUSIVE" "$COMMANDS_DIR/gemini-doctor.md"
+  grep -q "Evidence:" "$COMMANDS_DIR/gemini-doctor.md"
+}
+
+@test "doctor command does not claim a stale session on an inconclusive check" {
+  grep -qi "Never claim a stale session when check 3 is INCONCLUSIVE" \
+    "$COMMANDS_DIR/gemini-doctor.md"
 }
 
 @test "research command mentions --deep flag" {

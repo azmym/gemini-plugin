@@ -4,6 +4,14 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+### Fixed
+
+- **`/gemini-doctor` reported PASS and FAIL verdicts it never observed, sending users to fix things that were not broken.** The command had no way to say "this check did not run", so every check was forced into PASS or FAIL. Three separate defects followed from that, and all three fired at once in a real session: a rejected subagent spawn was reported as check 3 FAIL, which reads as "subagent grounding is broken" when grounding was in fact healthy and the check simply never executed; check 2 reported a resolved tool name of `mcp__plugin_gemini-plugin_gemini__gemini_search_grounded`, a name hardcoded in the command file that does not exist on every host, so the reported name came from the instructions rather than from the host; and check 4 read `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`, which silently fell back to the current directory when that variable is unset, reporting the working copy version (`0.8.1`) as the installed version while the loaded copy was `0.8.0`.
+
+  The command now reports `PASS`, `FAIL`, or `INCONCLUSIVE`, and every check must print an `Evidence:` line quoting the raw output it saw. A verdict with no evidence is `INCONCLUSIVE` by rule. Check 2 resolves the grounded-search tool by matching the tool name suffix `gemini_search_grounded` with any prefix, instead of assuming a namespace, and reports the name verbatim from the host. Check 3 separates "the researcher ran and reported no tool" (`FAIL`) from "the spawn never completed" (`INCONCLUSIVE`), and a stale session is claimed only on a genuine `FAIL`. Check 4 searches the known plugin locations, reports each version with the path it came from, and reports `VERSION DRIFT` when two paths disagree.
+
+- **Namespace-agnostic tool naming is now enforced in `commands/` too.** `tests/mcp-namespace.bats` already banned hardcoded `mcp__` paths in agents, skills, and hook scripts, but `commands/` was outside that ban, which is how the doctor's hardcoded namespace survived. The ban now covers command files, and a test asserts the doctor offers `INCONCLUSIVE` and requires per-check evidence. Suite is 123 tests, up from 120.
+
 ## [0.8.1] - 2026-09-06
 
 ### Fixed

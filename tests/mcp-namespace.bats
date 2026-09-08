@@ -37,6 +37,19 @@ AGENTS=(gemini-validator gemini-challenger gemini-researcher gemini-summarizer g
   done
 }
 
+@test "no command file contains a hardcoded mcp__ full path" {
+  # commands/ was originally outside this ban, which let gemini-doctor hardcode a
+  # namespace that does not exist on every host, then report that invented name
+  # as the resolved tool. Commands follow the same suffix-matching rule.
+  for f in commands/*.md; do
+    [ -f "$f" ] || continue
+    if grep -qE "mcp__gemini__|mcp__plugin_" "$f"; then
+      echo "FAIL: $f contains a hardcoded mcp__ path; match on the tool name suffix instead"
+      return 1
+    fi
+  done
+}
+
 @test "hook scripts contain no hardcoded mcp__ namespace" {
   for f in hooks/*.sh hooks/lib/*.sh; do
     [ -f "$f" ] || continue
