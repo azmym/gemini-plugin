@@ -4,6 +4,8 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-09-08
+
 ### Fixed
 
 - **`/gemini-doctor` reported PASS and FAIL verdicts it never observed, sending users to fix things that were not broken.** The command had no way to say "this check did not run", so every check was forced into PASS or FAIL. Three separate defects followed from that, and all three fired at once in a real session: a rejected subagent spawn was reported as check 3 FAIL, which reads as "subagent grounding is broken" when grounding was in fact healthy and the check simply never executed; check 2 reported a resolved tool name of `mcp__plugin_gemini-plugin_gemini__gemini_search_grounded`, a name hardcoded in the command file that does not exist on every host, so the reported name came from the instructions rather than from the host; and check 4 read `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`, which silently fell back to the current directory when that variable is unset, reporting the working copy version (`0.8.1`) as the installed version while the loaded copy was `0.8.0`.
@@ -225,7 +227,8 @@ First usable release. v0.1.0 was tagged but never published as a GitHub Release 
 - 1 session rules file.
 - Full docs (Diataxis structure: tutorial, how-to, reference, explanation).
 
-[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.8.2...HEAD
+[0.8.2]: https://github.com/azmym/gemini-plugin/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/azmym/gemini-plugin/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/azmym/gemini-plugin/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/azmym/gemini-plugin/compare/v0.7.0...v0.7.1
