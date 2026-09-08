@@ -4,6 +4,8 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-09-08
+
 ### Fixed
 
 - **Subagents pinned a vendor model alias, so on hosts that route to another backend they could not launch at all.** All five agents declared `model: sonnet` or `model: opus`. An alias is not resolved by the model vendor, it is resolved by whichever backend the host routes to, so behind a proxy or a router (for example an `ANTHROPIC_BASE_URL` pointing at a gateway) it can resolve to a model with a very small context window. A subagent's fixed startup load (global rules, project instructions, the installed skill catalog) then exceeds that window before the task prompt is even appended, and the spawn fails on input length. On an affected setup `gemini-researcher` died with "Prompt is too long" on every dispatch while the same session's main-agent Gemini path worked normally, because the main agent ran on the session model. A control spawn of an unpinned agent in the same session succeeded, which isolated the pin as the cause.
@@ -239,7 +241,8 @@ First usable release. v0.1.0 was tagged but never published as a GitHub Release 
 - 1 session rules file.
 - Full docs (Diataxis structure: tutorial, how-to, reference, explanation).
 
-[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.8.2...HEAD
+[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/azmym/gemini-plugin/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/azmym/gemini-plugin/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/azmym/gemini-plugin/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/azmym/gemini-plugin/compare/v0.7.1...v0.8.0
