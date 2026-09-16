@@ -1,4 +1,5 @@
 ---
+name: gemini-chat-and-reason
 description: Get a second opinion from Gemini via text generation or multi-turn chat. Use for code review, design critique, sanity-checking before commit, or when Claude wants another perspective on a complex decision.
 ---
 

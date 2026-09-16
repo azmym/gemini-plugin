@@ -1,4 +1,5 @@
 ---
+name: gemini-audio-tts-music
 description: Generate music (Lyria 3) or synthesize speech (Gemini TTS, single or multi-speaker). Use for soundtracks, voiceovers, demo narration, notification sounds, or audio branding.
 ---
 

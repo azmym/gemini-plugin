@@ -1,4 +1,5 @@
 ---
+name: gemini-video-gen
 description: Generate short video clips using Veo 3.1. Async start+poll pattern; returns an MP4 file. Use for product demos, B-roll footage, short animations, or motion design concepts.
 ---
 

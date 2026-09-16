@@ -1,4 +1,5 @@
 ---
+name: gemini-research-grounded
 description: Perform live-web research via Gemini's search-grounded answers or deep research synthesis. Use when a question involves post-training-cutoff information, library versions, CVEs, API docs, or any claim needing a primary source with citations.
 ---
 

@@ -1,4 +1,5 @@
 ---
+name: gemini-image-gen
 description: Generate images using Gemini's native image generation (Nano Banana) or Imagen 4. Use for UI mockups, hero images, product shots, infographic frames, or any visual content creation task.
 ---
 

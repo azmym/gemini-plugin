@@ -1,4 +1,5 @@
 ---
+name: gemini-code-exec
 description: Run Python code in Gemini's sandboxed execution environment to verify math, test regex patterns, simulate logic, or validate algorithms without local execution. Use when you need computational verification without side effects.
 ---
 

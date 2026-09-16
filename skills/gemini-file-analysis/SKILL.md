@@ -1,4 +1,5 @@
 ---
+name: gemini-file-analysis
 description: Analyze files (PDFs, images, audio, video, large source files) via Gemini's multi-modal file analysis. Use when a file is too large for Claude's context or when the file is a non-text format requiring visual/audio understanding.
 ---
 

@@ -1,4 +1,5 @@
 ---
+name: gemini-when-to-use
 description: Master router for the Gemini plugin. Use when uncertain whether a Gemini consult is warranted; covers cost discipline, anti-hallucination triggers, and the five subagent roles. Invoke before any other gemini-* skill.
 ---
 

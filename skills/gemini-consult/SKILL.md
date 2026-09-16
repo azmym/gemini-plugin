@@ -1,4 +1,5 @@
 ---
+name: gemini-consult
 description: Dispatch rule for consulting the five Gemini agents. Read this when deciding whether to get a Gemini second opinion and which agent to route to (researcher, validator, challenger, summarizer, reviewer). Enforces a one-consult-per-turn cap on manual dispatches.
 ---
 
