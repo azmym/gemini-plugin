@@ -1,0 +1,58 @@
+{
+  "name": "gemini-plugin",
+  "description": "Wraps gemini-mcp so Gemini acts as a second opinion: validator, critic, and code reviewer",
+  "version": "0.9.0",
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "agents": "./agents/",
+  "hooks": [
+    {
+      "event": "SessionStart",
+      "matcher": "startup",
+      "command": "${KIMI_PLUGIN_ROOT}/hooks/session-start-risk-map.sh"
+    },
+    {
+      "event": "UserPromptSubmit",
+      "command": "${KIMI_PLUGIN_ROOT}/hooks/user-prompt-grounding.sh"
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "Bash",
+      "command": "${KIMI_PLUGIN_ROOT}/hooks/pre-destructive-bash.sh"
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "ExitPlanMode",
+      "command": "${KIMI_PLUGIN_ROOT}/hooks/plan-complete.sh"
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit",
+      "command": "${KIMI_PLUGIN_ROOT}/hooks/design-review.sh"
+    },
+    {
+      "event": "PreCompact",
+      "command": "${KIMI_PLUGIN_ROOT}/hooks/pre-compact-summary.sh"
+    },
+    {
+      "event": "Stop",
+      "command": "${KIMI_PLUGIN_ROOT}/hooks/stop-done-claim.sh"
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": "gemini-validator|gemini-challenger|gemini-researcher|gemini-summarizer|gemini-reviewer",
+      "command": "${KIMI_PLUGIN_ROOT}/hooks/subagent-verdict-handler.sh"
+    }
+  ],
+  "mcpServers": {
+    "gemini": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/azmym/gemini-mcp@v0.3.1",
+        "gemini-mcp"
+      ]
+    }
+  }
+}
