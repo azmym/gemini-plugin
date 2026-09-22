@@ -53,7 +53,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ steps.version.outputs.tag }}" \
-            --title "${{ steps.version.outputs.tag }}" \
-            --notes-file release-notes.md \
-            --latest
+          # Idempotent: if the release already exists (created manually or by a
+          # rerun), update it instead of failing with 422 tag_name already exists.
+          if gh release view "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            gh release edit "${{ steps.version.outputs.tag }}" \
+              --title "${{ steps.version.outputs.tag }}" \
+              --notes-file release-notes.md \
+              --latest
+          else
+            gh release create "${{ steps.version.outputs.tag }}" \
+              --title "${{ steps.version.outputs.tag }}" \
+              --notes-file release-notes.md \
+              --latest
+          fi
