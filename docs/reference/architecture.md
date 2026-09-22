@@ -161,7 +161,7 @@ The plugin manifest auto-registers the gemini MCP server on install:
     "gemini": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/azmym/gemini-mcp@v0.3.1", "gemini-mcp"],
+      "args": ["--from", "git+https://github.com/azmym/gemini-mcp@v0.3.2", "gemini-mcp"],
       "env": { "GEMINI_API_KEY": "${user_config.gemini_api_key}" }
     }
   }
@@ -197,4 +197,4 @@ State is local, session-scoped, and disposable. Deleting the data directory rese
 
 Subagents do not pin a model. They inherit the session model, because a pinned alias is resolved by whichever backend the host routes to, and behind a proxy or router it can resolve to a small-context model that makes the subagent fail on input length before it reads its task. An absent `model:` field defaults to `inherit`, and harnesses that do not read the field ignore its absence, so declaring no pin is the portable choice.
 
-All subagents call Gemini models via MCP (default: `gemini-3.7-flash` for chat/search, `gemini-3.1-pro-preview` for generate). The orchestrating host structures the exchange and formats the JSON verdict; the Gemini model handles reasoning and web access.
+All subagents call Gemini models via MCP (default: `gemini-3.8-flash` for chat/search, `gemini-3.1-pro-preview` for generate). The orchestrating host structures the exchange and formats the JSON verdict; the Gemini model handles reasoning and web access.

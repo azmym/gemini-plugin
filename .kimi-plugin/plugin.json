@@ -1,7 +1,7 @@
 {
   "name": "gemini-plugin",
   "description": "Wraps gemini-mcp so Gemini acts as a second opinion: validator, critic, and code reviewer",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "skills": "./skills/",
   "commands": "./commands/",
   "agents": "./agents/",
@@ -50,7 +50,7 @@
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/azmym/gemini-mcp@v0.3.1",
+        "git+https://github.com/azmym/gemini-mcp@v0.3.2",
         "gemini-mcp"
       ]
     }
