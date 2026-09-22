@@ -4,6 +4,12 @@ All notable changes to gemini-plugin are documented here. The format follows [Ke
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-09-22
+
+### Changed
+
+- **Default chat and search-grounded model is now `gemini-3.8-flash`; music default is now `lyria-3.5`.** gemini-mcp's chat and search-grounded tools previously defaulted to `gemini-3.7-flash` and music generation to `lyria-3-pro-preview`, both superseded. The pin is bumped from `v0.3.1` to `v0.3.2`, which carries the new defaults. All other defaults (`gemini-3.1-pro-preview`, `gemini-3.1-flash-image`, `gemini-3.1-flash-tts-preview`, `veo-3.1-generate-preview`, `deep-research-max-preview-04-2026`) were checked against the live model catalog and remain the latest for their capability. Skill and reference docs now quote `gemini-3.8-flash` where they described the chat/search default.
+
 ## [0.9.0] - 2026-09-08
 
 ### Fixed
@@ -241,7 +247,8 @@ First usable release. v0.1.0 was tagged but never published as a GitHub Release 
 - 1 session rules file.
 - Full docs (Diataxis structure: tutorial, how-to, reference, explanation).
 
-[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/azmym/gemini-plugin/compare/v0.9.1...HEAD
+[0.9.1]: https://github.com/azmym/gemini-plugin/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/azmym/gemini-plugin/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/azmym/gemini-plugin/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/azmym/gemini-plugin/compare/v0.8.0...v0.8.1
